@@ -1,7 +1,15 @@
+using Tharga.Mcp;
+using Tharga.Mcp.Sample;
+
 var builder = WebApplication.CreateBuilder(args);
+
+builder.Services.AddThargaMcp(mcp =>
+{
+    mcp.Services.AddMcpServer().WithTools<HelloTools>();
+});
 
 var app = builder.Build();
 
-app.MapGet("/", () => "Tharga.Mcp sample — endpoints come in step 5.");
+app.MapMcp();
 
 app.Run();

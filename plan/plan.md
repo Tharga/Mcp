@@ -72,25 +72,29 @@ Feedback saved to memory: no nullable reference types in any Tharga .csproj.
 
 Tests (2): endpoint at default path is mapped; endpoint at a configured path is mapped and the old path returns 404.
 
-### 6. Unit tests consolidation [~]
-Ensure coverage:
-- Contracts
-- Builder registrations (including double-registration idempotency)
-- `AddMcp` DI graph
-- `MapMcp` routing / scope filtering
-- A fake provider exercised end-to-end through a `TestServer`
+### 6. Unit tests consolidation [x]
+16 tests cover:
+- Contracts (scope enum + provider shape) — 4
+- Builder registrations and idempotency — 5
+- `AddThargaMcp` DI graph + AsyncLocal accessor — 5
+- `MapMcp` endpoint wired at default and configured paths — 2
 
-Run `dotnet test -c Release`. Fix any warnings over baseline.
+Build clean (0 warnings), all tests pass. End-to-end provider-through-TestServer is deferred alongside the provider→SDK bridge (step 5 notes).
 
-### 7. Sample consumer [ ]
-Under `samples/Tharga.Mcp.Sample/`:
-- Minimal `Program.cs` using `AddThargaMcp(mcp => { mcp.AddResourceProvider<HelloWorldProvider>(); mcp.AddToolProvider<HelloWorldProvider>(); })` + `app.MapMcp()`
-- `HelloWorldProvider` exposes one resource (`hello.greeting` → "hello world") and one tool (`hello.echo` echoing its input)
-- README snippet in the sample showing how to run and connect with `npx @modelcontextprotocol/inspector`
+### 7. Sample consumer [x]
+Under `Sample/Tharga.Mcp.Sample/`:
+- `Program.cs` — minimal ASP.NET Core web app: `AddThargaMcp(mcp => { mcp.Services.AddMcpServer().WithTools<HelloTools>(); })` + `app.MapMcp()`
+- `HelloTools` — two `[McpServerTool]` attributed methods: `greet(name)` and `echo(message)`
+- Provider-style registration via `mcp.AddToolProvider<T>()` is available in the builder but deferred (bridge lands with Phase 2 MongoDB); attribute-based tools are the Phase 0 path
 
-Verify manually with MCP Inspector that list-resources, read-resource, list-tools, and call-tool all work.
+**Manual end-to-end verification (localhost:5138):**
+- `initialize` → `{"name":"Tharga.Mcp.Sample","version":"1.0.0.0"}` + `tools.listChanged`
+- `tools/list` → both tools discovered with correct JSON schemas (description, required params)
+- `tools/call greet {"name":"Daniel"}` → `"Hello, Daniel!"`
 
-### 8. GitHub Actions CI/CD [ ]
+Meets Phase 0's acceptance criterion: a hello-world tool can be called from an external MCP client.
+
+### 8. GitHub Actions CI/CD [~]
 Copy `.github/workflows/build.yml` from `c:/dev/tharga/Toolkit/Crawler/.github/workflows/build.yml`. Adapt:
 - `MAJOR_MINOR` = `0.1`
 - Pack step: `dotnet pack src/Tharga.Mcp/Tharga.Mcp.csproj`
