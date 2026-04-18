@@ -94,15 +94,21 @@ Under `Sample/Tharga.Mcp.Sample/`:
 
 Meets Phase 0's acceptance criterion: a hello-world tool can be called from an external MCP client.
 
-### 8. GitHub Actions CI/CD [~]
-Copy `.github/workflows/build.yml` from `c:/dev/tharga/Toolkit/Crawler/.github/workflows/build.yml`. Adapt:
+### 8. GitHub Actions CI/CD [x]
+Copied `.github/workflows/build.yml` from Tharga.Crawler. Adapted:
 - `MAJOR_MINOR` = `0.1`
-- Pack step: `dotnet pack src/Tharga.Mcp/Tharga.Mcp.csproj`
+- Pack step: `dotnet pack Tharga.Mcp/Tharga.Mcp.csproj`
 - `.NET` versions: `8.0.x`, `9.0.x`, `10.0.x`
 - Warning threshold: 15 (default)
-- Configure `NUGET_API_KEY` secret and `release` / `prerelease` environments in the repo on GitHub (ask Daniel to do this via UI before merging)
 
-### 9. README.md [ ]
+**Before the first merge to master, Daniel must configure on GitHub:**
+- `NUGET_API_KEY` secret
+- `release` and `prerelease` environments
+- `CODECOV_TOKEN` secret (optional — codecov step fails soft)
+
+**Known minor inheritance from Crawler's workflow:** the pack step in the build job always uses the stable version, so on PR runs the uploaded artifact ships with the stable version and the prerelease job publishes it under a pre-release tag — visible as a version mismatch between the GitHub Release title and the .nupkg filename. Not blocking for Phase 0 but worth fixing upstream later; flagging so we notice if/when it surfaces.
+
+### 9. README.md [~]
 Overwrite the seed README with:
 - One-paragraph "what is Tharga.Mcp"
 - Install (`dotnet add package Tharga.Mcp`)
