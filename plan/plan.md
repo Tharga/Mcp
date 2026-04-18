@@ -108,14 +108,17 @@ Copied `.github/workflows/build.yml` from Tharga.Crawler. Adapted:
 
 **Known minor inheritance from Crawler's workflow:** the pack step in the build job always uses the stable version, so on PR runs the uploaded artifact ships with the stable version and the prerelease job publishes it under a pre-release tag — visible as a version mismatch between the GitHub Release title and the .nupkg filename. Not blocking for Phase 0 but worth fixing upstream later; flagging so we notice if/when it surfaces.
 
-### 9. README.md [~]
-Overwrite the seed README with:
+### 9. README.md [x]
+Overwrote the seed README with:
 - One-paragraph "what is Tharga.Mcp"
-- Install (`dotnet add package Tharga.Mcp`)
-- Minimal usage example (10-20 lines)
-- How to register a provider
-- Link to the sample
-- Badge row (NuGet version, build status) — add after first CI run
+- Install snippet
+- Minimal usage example (10 lines)
+- Attribute-based tool definition
+- Provider-style composition pattern for future packages
+- Endpoint-scope note (single endpoint for Phase 0, decision link)
+- Sample run + MCP Inspector connection
+- License
+- Badge row deferred until the first CI run produces a NuGet version
 
 ## Commit milestones
 
@@ -133,8 +136,23 @@ Run `dotnet build -c Release` and `dotnet test -c Release` before each commit. N
 
 ## Progress log
 
-_(updated during implementation)_
+All nine steps complete. Feature is implementation-ready for review.
 
 ## Last session
 
-_(updated at end of session)_
+Completed Phase 0 foundation end-to-end in one sitting:
+- Steps 1–9 all done (skeleton → contracts → builder → AddThargaMcp → step 4b nullable removal → MapMcp → test consolidation → sample → CI/CD → README)
+- 16 unit tests, 0 warnings, end-to-end MCP initialize/list/call verified against a running sample (greet returned "Hello, Daniel!")
+- Master plan updated with the single-endpoint decision (2026-04-18); `IMcp*Provider`→SDK bridge deferred to Phase 2 when the first real provider arrives
+- Feedback saved to memory: no `<Nullable>enable</Nullable>` in Tharga projects
+
+**Ready for Daniel to review and test.** Outstanding before closing the feature:
+- Configure `NUGET_API_KEY`, `CODECOV_TOKEN`, and `release`/`prerelease` environments on GitHub
+- Push `feature/foundation` and open a PR to `master`
+- Validate CI runs green, first NuGet publish works
+- Then close per "Completing implementation" in shared-instructions (Daniel confirms → archive feature.md → final commit)
+
+Known deferred items to carry into a follow-up:
+- Three-endpoint split (`/mcp/me`/`/mcp/team`/`/mcp/system`) — revisit in Phase 1 or when SDK gains native support
+- `IMcpToolProvider`/`IMcpResourceProvider`→SDK-tool bridge — design when MongoDB provider is built
+- GitHub Actions pre-release version mismatch in the artifact (inherited from Crawler) — fix upstream later
