@@ -45,15 +45,19 @@ Design notes:
 
 Tests (5): idempotent registration on duplicate calls; resolvability via `IEnumerable<IMcp*Provider>`; options mutation visible; multiple distinct providers both register.
 
-### 4. AddMcp() entry point [~]
-Under `src/Tharga.Mcp/DependencyInjection/`:
-- `AddThargaMcp(this IServiceCollection, Action<IThargaMcpBuilder>)` — the top-level entry point referenced in the master plan
-- Wires up `ModelContextProtocol` SDK services (transport, discovery)
-- Registers `IMcpContext` accessor with a default no-auth implementation (Platform bridge will replace in Phase 1)
+### 4. AddMcp() entry point [x]
+Added:
+- `ThargaMcpServiceCollectionExtensions.AddThargaMcp(IServiceCollection, Action<IThargaMcpBuilder>)` — top-level entry point matching the master plan's signature
+- `IMcpContextAccessor` + `Internal.McpContextAccessor` (AsyncLocal-backed), registered as a singleton
+- Idempotency via `GetOrCreateSingleton` — second call reuses the same registry/options instance and merges registrations
 
-Tests: calling `AddThargaMcp` twice is idempotent (merge, not throw — same pattern as `AddCache` after the Cache fix); required services resolvable after registration.
+Deferred to step 5:
+- Actual MCP SDK server wiring (`AddMcpServer`, `WithHttpTransport`, `WithTools`) — that's per-endpoint, so it belongs in `MapMcp`
+- `IMcpContext` instance construction — the transport pipeline sets it via the accessor before calling providers
 
-### 5. MapMcp() endpoint mapping [ ]
+Tests (5): callback receives the builder; accessor is singleton + AsyncLocal-flow; calling twice merges registrations and preserves the same registry/options.
+
+### 5. MapMcp() endpoint mapping [~]
 Under `src/Tharga.Mcp/Routing/`:
 - `MapMcp(this IEndpointRouteBuilder)` extension
 - Maps three endpoints based on whether any registered provider supports that scope:
