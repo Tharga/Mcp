@@ -1,0 +1,38 @@
+<Project Sdk="Microsoft.NET.Sdk">
+
+	<PropertyGroup>
+		<TargetFrameworks>net8.0;net9.0;net10.0</TargetFrameworks>
+		<ImplicitUsings>enable</ImplicitUsings>
+		<Version>0.1.0</Version>
+		<Authors>Daniel Bohlin</Authors>
+		<Company>Thargelion AB</Company>
+		<Product>Tharga Mcp</Product>
+		<Description>Foundation package for MCP (Model Context Protocol) infrastructure in the Tharga ecosystem. Provides contracts, registration, and transport for Tharga provider packages and applications.</Description>
+		<PackageIconUrl>http://thargelion.se/wp-content/uploads/2019/11/Thargelion-White-Icon-150.png</PackageIconUrl>
+		<GenerateDocumentationFile>True</GenerateDocumentationFile>
+		<PackageReadmeFile>README.md</PackageReadmeFile>
+		<PackageProjectUrl>https://github.com/Tharga/Mcp</PackageProjectUrl>
+		<DebugType>portable</DebugType>
+		<EmbedUntrackedSources>true</EmbedUntrackedSources>
+		<PublishRepositoryUrl>true</PublishRepositoryUrl>
+		<IncludeSource>true</IncludeSource>
+		<IncludeSymbols>true</IncludeSymbols>
+	</PropertyGroup>
+	<PropertyGroup>
+		<NoWarn>1701;1702;CS1591;CS0809</NoWarn>
+	</PropertyGroup>
+	<ItemGroup>
+		<None Include="..\README.md" Pack="true" PackagePath="\" />
+	</ItemGroup>
+	<ItemGroup>
+		<FrameworkReference Include="Microsoft.AspNetCore.App" />
+	</ItemGroup>
+	<ItemGroup>
+		<PackageReference Include="ModelContextProtocol" Version="1.2.0" />
+		<PackageReference Include="ModelContextProtocol.AspNetCore" Version="1.2.0" />
+	</ItemGroup>
+	<ItemGroup>
+		<InternalsVisibleTo Include="Tharga.Mcp.Tests" />
+		<InternalsVisibleTo Include="DynamicProxyGenAssembly2" />
+	</ItemGroup>
+</Project>
