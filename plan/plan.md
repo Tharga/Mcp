@@ -32,15 +32,20 @@ Tests (4, all passing):
 - `ProviderContractTests.Resource_provider_returns_declared_resources_and_content`
 - `ProviderContractTests.Tool_provider_returns_declared_tools_and_echoes_arguments`
 
-### 3. IThargaMcpBuilder + options [~]
-Under `src/Tharga.Mcp/Builder/`:
-- `IThargaMcpBuilder` — access to `IServiceCollection`, endpoint path config (default `/mcp`), `RequireAuth` flag, provider registration helpers (`AddResourceProvider<T>`, `AddToolProvider<T>`)
-- `ThargaMcpOptions` — resolvable options record for downstream wiring
-- `AddResourceProvider` / `AddToolProvider` extension methods on the builder
+### 3. IThargaMcpBuilder + options [x]
+Added:
+- `ThargaMcpOptions` — `EndpointBasePath` (default `/mcp`), `RequireAuth` placeholder (Phase 1 bridges)
+- `IThargaMcpBuilder` — `Services`, `Options`, `AddResourceProvider<T>`, `AddToolProvider<T>`
+- `Internal/McpProviderRegistration`, `McpProviderRegistry`, `ThargaMcpBuilder` (concrete, internal)
 
-Tests: builder records provider registrations; options resolved from DI match configured values.
+Design notes:
+- Registry dedupes by implementation type (idempotent) — same pattern Cache adopted after the 2026-04 fix
+- `AddResourceProvider<T>` registers both the concrete type (`TryAddTransient<T>()`) and a factory for `IMcpResourceProvider` resolving to T, so `IEnumerable<IMcpResourceProvider>` enumerates all providers
+- Registry is internal; consumers only touch the builder
 
-### 4. AddMcp() entry point [ ]
+Tests (5): idempotent registration on duplicate calls; resolvability via `IEnumerable<IMcp*Provider>`; options mutation visible; multiple distinct providers both register.
+
+### 4. AddMcp() entry point [~]
 Under `src/Tharga.Mcp/DependencyInjection/`:
 - `AddThargaMcp(this IServiceCollection, Action<IThargaMcpBuilder>)` — the top-level entry point referenced in the master plan
 - Wires up `ModelContextProtocol` SDK services (transport, discovery)
