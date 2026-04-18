@@ -62,17 +62,17 @@ Removed `<Nullable>enable</Nullable>` from all three csprojs. Stripped `?` from 
 
 Feedback saved to memory: no nullable reference types in any Tharga .csproj.
 
-### 5. MapMcp() endpoint mapping [~]
+### 5. MapMcp() endpoint mapping [x]
 **Option A — single endpoint (decision 2026-04-18, master plan updated).**
-Under `Tharga.Mcp/`:
-- `MapMcp(this IEndpointRouteBuilder)` extension — maps a single MCP endpoint at `ThargaMcpOptions.EndpointBasePath` (default `/mcp`)
-- Internally wires up the ModelContextProtocol SDK's `AddMcpServer().WithHttpTransport()` using the registered providers
-- Bridges each registered `IMcpToolProvider`/`IMcpResourceProvider` into the SDK's tool/resource registry
+- `AddThargaMcp` now also calls the SDK's `AddMcpServer().WithHttpTransport()` so the MCP server is ready
+- `MapMcpExtensions.MapMcp(this IEndpointRouteBuilder)` reads `ThargaMcpOptions.EndpointBasePath` and delegates to the SDK's `MapMcp(path)` overload
 - Scope carried via `IMcpContext.Scope`; endpoint itself does not filter by scope in Phase 0
 
-Tests: endpoint present; tools/resources from registered providers discoverable via the SDK server.
+**Deferred to a follow-up** — bridging `IMcpToolProvider`/`IMcpResourceProvider` registrations into SDK-side tools/resources. The SDK creates tools from delegates/methods (with schema inferred from the signature) — translating our `JsonElement`-based dynamic contract would either leak SDK types into providers or hand-roll schema generation. Deferring until Phase 2 (first real provider, MongoDB) gives us a concrete tool shape to design against. For Phase 0, the sample project will register tools via the SDK's `[McpServerTool]` attribute using `mcp.Services.AddMcpServer().WithTools<T>()` — that path works today because `AddThargaMcp` wires the SDK server.
 
-### 6. Unit tests consolidation [ ]
+Tests (2): endpoint at default path is mapped; endpoint at a configured path is mapped and the old path returns 404.
+
+### 6. Unit tests consolidation [~]
 Ensure coverage:
 - Contracts
 - Builder registrations (including double-registration idempotency)

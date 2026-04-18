@@ -10,6 +10,7 @@ public static class ThargaMcpServiceCollectionExtensions
     /// <summary>
     /// Registers the Tharga MCP foundation and invokes the bundled callback so provider packages can attach via
     /// their own extension methods on <see cref="IThargaMcpBuilder"/> (e.g. <c>mcp.AddMongoDB()</c>).
+    /// Also wires up the official ModelContextProtocol server with HTTP+SSE transport.
     /// Calling this more than once merges into the existing configuration rather than throwing.
     /// </summary>
     public static IServiceCollection AddThargaMcp(this IServiceCollection services, Action<IThargaMcpBuilder> configure)
@@ -21,6 +22,8 @@ public static class ThargaMcpServiceCollectionExtensions
         var options = GetOrCreateSingleton(services, () => new ThargaMcpOptions());
 
         services.TryAddSingleton<IMcpContextAccessor, McpContextAccessor>();
+
+        services.AddMcpServer().WithHttpTransport();
 
         var builder = new ThargaMcpBuilder(services, options, registry);
         configure(builder);
