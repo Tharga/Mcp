@@ -7,5 +7,5 @@ public sealed record McpContent
     public string Type { get; init; } = "text";
 
     /// <summary>Text payload when <see cref="Type"/> is <c>text</c>.</summary>
-    public string? Text { get; init; }
+    public string Text { get; init; }
 }

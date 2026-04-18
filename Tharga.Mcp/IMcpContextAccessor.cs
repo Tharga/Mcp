@@ -7,5 +7,5 @@ namespace Tharga.Mcp;
 public interface IMcpContextAccessor
 {
     /// <summary>The current call's context, or <c>null</c> when outside an MCP request.</summary>
-    IMcpContext? Current { get; set; }
+    IMcpContext Current { get; set; }
 }

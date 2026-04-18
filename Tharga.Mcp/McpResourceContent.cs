@@ -7,11 +7,11 @@ public sealed record McpResourceContent
     public required string Uri { get; init; }
 
     /// <summary>Textual content (mutually exclusive with <see cref="Blob"/>).</summary>
-    public string? Text { get; init; }
+    public string Text { get; init; }
 
     /// <summary>Binary content as base64-encoded bytes (mutually exclusive with <see cref="Text"/>).</summary>
-    public byte[]? Blob { get; init; }
+    public byte[] Blob { get; init; }
 
     /// <summary>Optional MIME type of the content.</summary>
-    public string? MimeType { get; init; }
+    public string MimeType { get; init; }
 }

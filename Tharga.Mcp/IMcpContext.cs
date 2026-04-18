@@ -7,10 +7,10 @@ namespace Tharga.Mcp;
 public interface IMcpContext
 {
     /// <summary>The authenticated user, or <c>null</c> when the request is anonymous.</summary>
-    string? UserId { get; }
+    string UserId { get; }
 
     /// <summary>The active team for this call, or <c>null</c> when the scope is not team-bound.</summary>
-    string? TeamId { get; }
+    string TeamId { get; }
 
     /// <summary>True when the caller has the Developer role. Required for the <see cref="McpScope.System"/> endpoint.</summary>
     bool IsDeveloper { get; }

@@ -57,17 +57,20 @@ Deferred to step 5:
 
 Tests (5): callback receives the builder; accessor is singleton + AsyncLocal-flow; calling twice merges registrations and preserves the same registry/options.
 
-### 5. MapMcp() endpoint mapping [~]
-Under `src/Tharga.Mcp/Routing/`:
-- `MapMcp(this IEndpointRouteBuilder)` extension
-- Maps three endpoints based on whether any registered provider supports that scope:
-  - `/mcp/me` — only if a provider declares `McpScope.User`
-  - `/mcp/team` — only if a provider declares `McpScope.Team`
-  - `/mcp/system` — only if a provider declares `McpScope.System`
-- Each endpoint bridges to the ModelContextProtocol SDK transport for HTTP + SSE
-- Endpoint filter selects providers matching the endpoint's scope when fulfilling discovery/invocation
+### 4b. Remove nullable reference types [x]
+Removed `<Nullable>enable</Nullable>` from all three csprojs. Stripped `?` from reference-type annotations in `IMcpContext`, `IMcpContextAccessor`, `McpContent`, `McpResourceContent`, `McpResourceDescriptor`, `McpToolDescriptor`, `Internal/McpContextAccessor`, and the two test files' fake context records. Kept `JsonElement?` (value-type nullable). Build clean (0 warnings), 14 tests pass.
 
-Tests: endpoint existence matches registered scopes; provider resource/tool lists filtered per endpoint scope.
+Feedback saved to memory: no nullable reference types in any Tharga .csproj.
+
+### 5. MapMcp() endpoint mapping [~]
+**Option A — single endpoint (decision 2026-04-18, master plan updated).**
+Under `Tharga.Mcp/`:
+- `MapMcp(this IEndpointRouteBuilder)` extension — maps a single MCP endpoint at `ThargaMcpOptions.EndpointBasePath` (default `/mcp`)
+- Internally wires up the ModelContextProtocol SDK's `AddMcpServer().WithHttpTransport()` using the registered providers
+- Bridges each registered `IMcpToolProvider`/`IMcpResourceProvider` into the SDK's tool/resource registry
+- Scope carried via `IMcpContext.Scope`; endpoint itself does not filter by scope in Phase 0
+
+Tests: endpoint present; tools/resources from registered providers discoverable via the SDK server.
 
 ### 6. Unit tests consolidation [ ]
 Ensure coverage:

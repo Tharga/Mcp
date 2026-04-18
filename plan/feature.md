@@ -11,8 +11,8 @@ Cross-repo context: this feature delivers Phase 0 of the MCP super-feature. See 
 **In scope:**
 - Core contracts: `IMcpResourceProvider`, `IMcpToolProvider`, `IMcpContext`, `McpScope` enum
 - Registration pattern: `IThargaMcpBuilder` with bundled-callback style (`services.AddThargaMcp(mcp => { ... })`)
-- `AddMcp()` — DI registration, transport (HTTP + SSE via official `ModelContextProtocol` SDK), discovery
-- `MapMcp()` — maps `/mcp/me`, `/mcp/team`, `/mcp/system` based on registered providers and their declared scope
+- `AddThargaMcp()` — DI registration, transport (HTTP + SSE via official `ModelContextProtocol` SDK), discovery
+- `MapMcp()` — **single endpoint** at the configured base path (default `/mcp`) exposing the union of registered providers. The three-endpoint split (`/mcp/me`/`/mcp/team`/`/mcp/system`) is deferred — the SDK's transport is a singleton that doesn't support per-route tool/resource filtering without significant re-implementation. Scope is carried on `IMcpContext.Scope` and enforced by providers and (Phase 1) authorization. Master plan updated with the decision 2026-04-18.
 - Wraps `ModelContextProtocol` 1.2.0 (latest stable)
 - Unit tests
 - Sample consumer (`samples/Tharga.Mcp.Sample`) with a hello-world provider callable from an external MCP client
@@ -29,6 +29,7 @@ Cross-repo context: this feature delivers Phase 0 of the MCP super-feature. See 
 
 ## Acceptance criteria
 
+- No `<Nullable>enable</Nullable>` anywhere — matches rest of the Tharga ecosystem
 - `Tharga.Mcp` package builds on net8/9/10 without warnings beyond baseline
 - All unit tests pass in `dotnet test -c Release`
 - Sample project runs and responds to an MCP client (hello-world tool callable, hello-world resource readable)

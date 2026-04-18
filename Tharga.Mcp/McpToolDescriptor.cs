@@ -9,7 +9,7 @@ public sealed record McpToolDescriptor
     public required string Name { get; init; }
 
     /// <summary>Optional human-readable description of what the tool does.</summary>
-    public string? Description { get; init; }
+    public string Description { get; init; }
 
     /// <summary>JSON Schema describing the tool's arguments. When null, the tool takes no arguments.</summary>
     public JsonElement? InputSchema { get; init; }

@@ -12,12 +12,12 @@ public class AddThargaMcpTests
     public void Invokes_configure_callback_with_builder()
     {
         var services = new ServiceCollection();
-        IThargaMcpBuilder? captured = null;
+        IThargaMcpBuilder captured = null;
 
         services.AddThargaMcp(mcp => captured = mcp);
 
         captured.Should().NotBeNull();
-        captured!.Services.Should().BeSameAs(services);
+        captured.Services.Should().BeSameAs(services);
     }
 
     [Fact]
@@ -44,7 +44,7 @@ public class AddThargaMcpTests
         accessor.Current = new TestContext(McpScope.User);
 
         accessor.Current.Should().NotBeNull();
-        accessor.Current!.Scope.Should().Be(McpScope.User);
+        accessor.Current.Scope.Should().Be(McpScope.User);
     }
 
     [Fact]
@@ -63,8 +63,8 @@ public class AddThargaMcpTests
     public void Calling_twice_shares_the_same_registry_and_options()
     {
         var services = new ServiceCollection();
-        McpProviderRegistry? first = null;
-        ThargaMcpOptions? firstOpts = null;
+        McpProviderRegistry first = null;
+        ThargaMcpOptions firstOpts = null;
 
         services.AddThargaMcp(mcp =>
         {
@@ -72,8 +72,8 @@ public class AddThargaMcpTests
             firstOpts = mcp.Options;
         });
 
-        McpProviderRegistry? second = null;
-        ThargaMcpOptions? secondOpts = null;
+        McpProviderRegistry second = null;
+        ThargaMcpOptions secondOpts = null;
         services.AddThargaMcp(mcp =>
         {
             second = services.BuildServiceProvider().GetRequiredService<McpProviderRegistry>();
@@ -104,8 +104,8 @@ public class AddThargaMcpTests
 
     private sealed record TestContext(McpScope Scope) : IMcpContext
     {
-        public string? UserId => null;
-        public string? TeamId => null;
+        public string UserId => null;
+        public string TeamId => null;
         public bool IsDeveloper => false;
     }
 }

@@ -10,8 +10,8 @@ public sealed record McpResourceDescriptor
     public required string Name { get; init; }
 
     /// <summary>Optional description surfaced in tool/resource listings.</summary>
-    public string? Description { get; init; }
+    public string Description { get; init; }
 
     /// <summary>Optional MIME type hint for the resource content (e.g. <c>application/json</c>).</summary>
-    public string? MimeType { get; init; }
+    public string MimeType { get; init; }
 }
