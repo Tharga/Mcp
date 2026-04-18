@@ -15,17 +15,24 @@ Created:
 
 Build (`dotnet build -c Release`) and test (`dotnet test -c Release`) both pass, 0 warnings. Placeholder test verifies the skeleton compiles.
 
-### 2. Core contracts [~]
-Under `src/Tharga.Mcp/Contracts/`:
-- `McpScope` enum — `User`, `Team`, `System`
-- `IMcpContext` — `UserId`, `TeamId`, `IsDeveloper`, `Scope` (McpScope)
-- `IMcpResourceProvider` — surface resources (read-only data) for a given scope
-- `IMcpToolProvider` — surface tools (callable actions) for a given scope
-- Shape provider interfaces so they can declare supported scopes and return typed resource/tool descriptors
+### 2. Core contracts [x]
+Added (flat layout at `Tharga.Mcp/` root, matching Crawler style):
+- `McpScope` — User/Team/System
+- `IMcpContext` — UserId, TeamId, IsDeveloper, Scope
+- `IMcpProvider` base + `IMcpResourceProvider` + `IMcpToolProvider` (each declares a single `Scope`)
+- Descriptor records: `McpResourceDescriptor`, `McpResourceContent`, `McpToolDescriptor`, `McpToolResult`, `McpContent`
 
-Tests: contract shape tests (e.g. a fake provider declaring `McpScope.System` is visible to system discovery only).
+**Design decision:** providers declare one scope each (not a set). For apps that serve multiple scopes (e.g. PlutusWave), the consumer registers multiple provider classes. Forces clean separation and avoids every provider method taking a scope argument.
 
-### 3. IThargaMcpBuilder + options [ ]
+**SDK alignment note:** the MCP C# SDK is attribute-based (`[McpServerTool]`). Our `IMcp*Provider` interfaces are Tharga-level abstractions; step 4/5 will bridge them to the SDK by wiring each provider's methods into the SDK's tool registry at server-build time. This keeps providers declarative and the SDK as an implementation detail.
+
+Tests (4, all passing):
+- `McpScopeTests.Scope_has_three_levels`
+- `ProviderContractTests.Resource_provider_declares_scope_and_surfaces_contents`
+- `ProviderContractTests.Resource_provider_returns_declared_resources_and_content`
+- `ProviderContractTests.Tool_provider_returns_declared_tools_and_echoes_arguments`
+
+### 3. IThargaMcpBuilder + options [~]
 Under `src/Tharga.Mcp/Builder/`:
 - `IThargaMcpBuilder` — access to `IServiceCollection`, endpoint path config (default `/mcp`), `RequireAuth` flag, provider registration helpers (`AddResourceProvider<T>`, `AddToolProvider<T>`)
 - `ThargaMcpOptions` — resolvable options record for downstream wiring
