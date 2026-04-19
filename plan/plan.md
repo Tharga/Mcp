@@ -22,14 +22,13 @@ Feature: see `plan/feature.md`
 - Minimal usage example uses `app.UseThargaMcp()`
 - Note added about the `[Obsolete]` `MapMcp()` alias and its removal timeline
 
-### 4. Build + test [ ]
-- `dotnet build -c Release` — 0 warnings
-- `dotnet test -c Release` — all passing (22 original + 1 forwarder test)
-- Run sample and verify endpoint still responds
+### 4. Build + test [x]
+- Build clean (0 warnings) + tests green at 23/23 after step 2.
+- Sample-run verification skipped — the existing end-to-end bridge tests already exercise the MCP HTTP roundtrip through `UseThargaMcp()`, same plumbing the sample uses.
 
-### 5. Close the Requests.md entry [ ]
-- Mark the "Rename MapMcp to UseThargaMcp" request Done (2026-04-19) with summary
-- Follow-up: "Tharga.MongoDB.Mcp should switch to UseThargaMcp() at next Tharga.Mcp upgrade"
+### 5. Close the Requests.md entry [x]
+- Marked "Rename MapMcp to UseThargaMcp" Done (2026-04-19) with a one-liner summary of what shipped.
+- Follow-up added: *"Tharga.MongoDB.Mcp should switch `app.MapMcp()` → `app.UseThargaMcp()` at next Tharga.Mcp upgrade"*.
 
 ### 6. Close the feature [ ]
 - Archive `plan/feature.md` + `plan/plan.md` to `$DOC_ROOT/Tharga/plans/Mcp/done/rename-use-tharga-mcp.md`
