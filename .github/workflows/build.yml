@@ -95,9 +95,15 @@ jobs:
           echo "version=$PRE_VERSION" >> "$GITHUB_OUTPUT"
           echo "Computed pre-release version: $PRE_VERSION"
 
-      - name: Pack
+      - name: Pack (stable — push to master)
+        if: github.ref == 'refs/heads/master' && github.event_name == 'push'
         run: |
           dotnet pack Tharga.Mcp/Tharga.Mcp.csproj -c Release --no-build -o ./artifacts -p:PackageVersion=${{ steps.version.outputs.version }}
+
+      - name: Pack (pre-release — pull request)
+        if: github.event_name == 'pull_request'
+        run: |
+          dotnet pack Tharga.Mcp/Tharga.Mcp.csproj -c Release --no-build -o ./artifacts -p:PackageVersion=${{ steps.preversion.outputs.version }}
 
       - name: Upload artifacts
         uses: actions/upload-artifact@v4
