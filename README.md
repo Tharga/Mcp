@@ -45,17 +45,42 @@ public sealed class HelloTools
 
 ## Provider contracts
 
-`Tharga.Mcp` also defines `IMcpResourceProvider` and `IMcpToolProvider` with per-scope registration (`User`, `Team`, `System`). Provider packages register via extension methods on `IThargaMcpBuilder`:
+`Tharga.Mcp` also defines `IMcpResourceProvider` and `IMcpToolProvider` with per-scope registration (`User`, `Team`, `System`). This is the path for packages that need dynamic tools/resources — where the set of tools is known only at runtime (e.g. one MCP resource per MongoDB collection).
+
+```csharp
+public sealed class TimeToolProvider : IMcpToolProvider
+{
+    public McpScope Scope => McpScope.System;
+
+    public Task<IReadOnlyList<McpToolDescriptor>> ListToolsAsync(IMcpContext context, CancellationToken ct)
+        => Task.FromResult<IReadOnlyList<McpToolDescriptor>>(
+            [new McpToolDescriptor { Name = "time_now", Description = "Current UTC time." }]);
+
+    public Task<McpToolResult> CallToolAsync(string name, JsonElement args, IMcpContext context, CancellationToken ct)
+        => Task.FromResult(new McpToolResult
+        {
+            Content = [new McpContent { Text = DateTimeOffset.UtcNow.ToString("O") }],
+        });
+}
+
+builder.Services.AddThargaMcp(mcp =>
+{
+    mcp.AddToolProvider<TimeToolProvider>();
+});
+```
+
+Provider packages expose an extension method on `IThargaMcpBuilder` so consumers can compose them inside the same callback:
 
 ```csharp
 builder.Services.AddThargaMcp(mcp =>
 {
     mcp.AddMongoDB();   // from Tharga.MongoDB.Mcp
     mcp.AddPlatform();  // from Tharga.Platform.Mcp
+    mcp.AddToolProvider<MyCustomProvider>();
 });
 ```
 
-The runtime bridge from these contracts to SDK-side tools/resources lands with the first real provider (MongoDB, Phase 2). Until then, register tools via the SDK's attribute pattern as shown above.
+The two paths (attribute-based `[McpServerTool]` and contract-based `IMcpToolProvider`) work **side by side** — use attributes for statically-declared tools, providers for dynamic or programmatically-generated tools. Scope filtering (`/mcp/me`, `/mcp/team`, `/mcp/system`) activates in Phase 1 once `Tharga.Platform.Mcp` populates `IMcpContextAccessor.Current` from the authenticated request.
 
 ## Endpoint scopes
 
