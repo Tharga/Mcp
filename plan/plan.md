@@ -78,22 +78,29 @@ Under `Tharga.Mcp/Internal/`:
   6. For ReadResource: find owning provider (by URI match — first provider whose `ListResourcesAsync` advertised the URI)
 - Build a per-call `IMcpContext` if `Current` is null, populate the scope field so provider methods see a consistent context
 
-### 4. Wire up in AddThargaMcp [~]
+### 4. Wire up in AddThargaMcp [x]
+- Registered `McpProviderDispatcher` via `TryAddSingleton`
+- Registered `IConfigureOptions<McpServerOptions>` → `ConfigureMcpHandlers` via `TryAddEnumerable`
+- `ConfigureMcpHandlers` uses `??=` so if a consumer set a handler explicitly, we don't overwrite — we only fill null slots. This also keeps the SDK's attribute-based tools/resources unchanged (those live on `McpServerOptions.Tools/Resources` collections, a separate property from `Handlers`).
 In `ThargaMcpServiceCollectionExtensions.AddThargaMcp`:
 - Register the dispatcher
 - Configure `McpServerOptions` via `services.Configure<McpServerOptions>(...)` or the SDK's recommended pattern so the dispatcher's handlers land on the final options
 - Keep attribute-based tool registration working — investigate whether SDK stacks them or we need to explicitly chain
 
-### 5. Tests [ ]
-New tests covering:
-- Tool provider end-to-end: register `FakeToolProvider`, POST initialize → tools/list → tools/call, verify round-trip
-- Resource provider end-to-end: same pattern
-- Scope filter: register two tool providers with different scopes, set `IMcpContextAccessor.Current` to one scope, verify only that provider's tools are listed
-- No-context fallback: leave `Current` null, verify all scopes visible
-- Coexistence: attribute-based tool + provider-based tool in the same server, both discoverable
-- Unknown tool name: `tools/call` with a name no provider owns → returns `-32602` invalid-params or the SDK's standard unknown-tool error
+### 5. Tests [x]
+Added `Tharga.Mcp.Tests/Bridge/`:
+- `McpJsonRpcTestClient` — minimal raw JSON-RPC MCP client for tests; handles initialize + session capture + SSE parsing
+- `ProviderBridgeTests` — 6 end-to-end tests via `TestServer`:
+  1. Tool provider discoverable via `tools/list` and callable via `tools/call`
+  2. Resource provider discoverable via `resources/list` and readable via `resources/read`
+  3. Unknown tool returns `IsError = true` with the tool name in the message
+  4. Attribute-based tools coexist with provider-based tools; both listable and callable
+  5. Arguments reach the provider as a JSON object (`JsonElement` with key/value)
+  6. Scope filter: middleware sets `accessor.Current = User`, only `User`-scoped provider is listed — demonstrates the Phase 1 integration pattern
 
-### 6. Sample update [ ]
+Full suite: **22/22 tests pass**, build clean.
+
+### 6. Sample update [~]
 Add one `IMcpToolProvider` to `Sample/Tharga.Mcp.Sample/` (e.g. `TimeToolProvider` with a single `time.now` tool). Register it via `mcp.AddToolProvider<TimeToolProvider>()`. Leave `HelloTools` as-is so the sample shows both paths.
 
 Update `WelcomePage.Html` tool list to mention the new tool.

@@ -1,5 +1,7 @@
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.DependencyInjection.Extensions;
+using Microsoft.Extensions.Options;
+using ModelContextProtocol.Server;
 using Tharga.Mcp.Internal;
 
 namespace Tharga.Mcp;
@@ -22,6 +24,8 @@ public static class ThargaMcpServiceCollectionExtensions
         var options = GetOrCreateSingleton(services, () => new ThargaMcpOptions());
 
         services.TryAddSingleton<IMcpContextAccessor, McpContextAccessor>();
+        services.TryAddSingleton<McpProviderDispatcher>();
+        services.TryAddEnumerable(ServiceDescriptor.Singleton<IConfigureOptions<McpServerOptions>, ConfigureMcpHandlers>());
 
         services.AddMcpServer().WithHttpTransport();
 
