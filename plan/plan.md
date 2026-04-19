@@ -108,10 +108,9 @@ Verified manually: `tools/list` now returns all three (`time_now`, `echo`, `gree
 ### 7. README update [x]
 Replaced the "Provider contracts" section with a runnable `TimeToolProvider` example showing `IMcpToolProvider` end-to-end. Documents that attribute and provider paths coexist, and that scope filtering activates with Phase 1.
 
-### 8. Close the Requests.md entry [~]
-Per shared-instructions "Feature Requests (cross-project)":
-1. Mark the request Done in `$DOC_ROOT/Tharga/Requests.md` with completion date + summary
-2. Add Follow-up item: "Tharga.MongoDB.Mcp should upgrade Tharga.Mcp to X.Y.Z — IMcpToolProvider/IMcpResourceProvider bridge"
+### 8. Close the Requests.md entry [x]
+- Marked the *"Bridge IMcpToolProvider / IMcpResourceProvider into the SDK dispatch"* request Done (2026-04-19) with a summary of what shipped.
+- Added Follow-up: *"Tharga.MongoDB.Mcp should upgrade Tharga.Mcp to >= 0.1.1 — dispatcher now wired, no per-provider SDK plumbing needed."*
 
 ## Commit milestones
 
@@ -127,8 +126,19 @@ Run `dotnet build -c Release` and `dotnet test -c Release` before each commit. N
 
 ## Progress log
 
-_(updated during implementation)_
+All 8 steps complete. Feature is ready for review.
 
 ## Last session
 
-_(updated at end of session)_
+Completed provider-bridge in one sitting:
+- Steps 1–8 all done
+- 22/22 unit + integration tests pass (16 original + 6 new bridge tests)
+- End-to-end verified manually against running sample: `tools/list` returns all three tools (one provider-based `time_now` + two attribute-based `greet`/`echo`); `tools/call time_now` returns a fresh timestamp; `greet` still works unchanged
+- Requests.md entry marked Done with Follow-up for MongoDB.Mcp
+
+**Ready for Daniel to review and test.** Outstanding before closing:
+- Push `feature/provider-bridge` and open PR to master
+- CI green
+- NuGet publish (auto-patch → 0.1.1)
+- Upgrade `Tharga.MongoDB.Mcp` to 0.1.1 and verify the bridge actually unblocks the original complaint
+- Then close per shared-instructions
