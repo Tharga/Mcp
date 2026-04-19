@@ -13,7 +13,13 @@ Python YAML module not installed, but a structural check passes: no tabs, both n
 - `python -c "import yaml; yaml.safe_load(open('.github/workflows/build.yml'))"` (or equivalent)
 - Review the conditional logic one more time against the trigger matrix
 
-### 3. File per-project Requests.md entries [~]
+### 3. File per-project Requests.md entries [x]
+Added 5 entries:
+- `## Tharga.Wpf` (line 333) — Review
+- `## Tharga.Crawler` (line 344, **new section**) — Fix (also reference template — note about propagation)
+- `## Tharga.Blazor` (line 357, **new section**) — Review
+- `## Quilt4Net.Toolkit` (line 152) — Review (note: 4 `dotnet pack` lines)
+- `## Tharga.MongoDB` (line 400) — Review
 One entry under each of: Tharga.Crawler, Tharga.MongoDB, Tharga.Wpf, Tharga.Blazor, Quilt4Net.Toolkit. Same template — from Tharga.Mcp, priority Medium, description with the flow trace, proposed fix (Option A). For Crawler, note that it's the reference template source.
 
 ### 4. Close the feature [ ]
