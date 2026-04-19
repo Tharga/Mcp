@@ -18,9 +18,9 @@ Feature: see `plan/feature.md`
 - New test `Obsolete_MapMcp_alias_still_maps_the_endpoint` proves backward compat (wraps the call in `#pragma warning disable CS0618`)
 - Build clean (0 warnings), 23/23 tests pass (22 original + 1 forwarder test)
 
-### 3. Update README [ ]
-- Minimal usage example: `app.MapMcp()` → `app.UseThargaMcp()`
-- Short note about the obsolete alias for existing consumers
+### 3. Update README [x]
+- Minimal usage example uses `app.UseThargaMcp()`
+- Note added about the `[Obsolete]` `MapMcp()` alias and its removal timeline
 
 ### 4. Build + test [ ]
 - `dotnet build -c Release` — 0 warnings

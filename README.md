@@ -23,11 +23,11 @@ builder.Services.AddThargaMcp(mcp =>
 });
 
 var app = builder.Build();
-app.MapMcp();
+app.UseThargaMcp();
 app.Run();
 ```
 
-`MapMcp()` exposes the MCP endpoint at `ThargaMcpOptions.EndpointBasePath` (default `/mcp`).
+`UseThargaMcp()` exposes the MCP endpoint at `ThargaMcpOptions.EndpointBasePath` (default `/mcp`). An `[Obsolete]` `MapMcp()` alias still works for one release cycle but will be removed — update when you can.
 
 ## Defining tools
 
