@@ -56,7 +56,16 @@ Build mappers between Tharga descriptors and SDK types:
 
 Internal static `McpTypeMappers` with helpers for each direction.
 
-### 3. McpProviderDispatcher [~]
+### 3. McpProviderDispatcher [x]
+Singleton `Internal/McpProviderDispatcher` implementing the four handler methods. Each:
+- Reads `IMcpContextAccessor.Current` from per-request `request.Services`
+- Enumerates `IEnumerable<IMcpResourceProvider>` / `IEnumerable<IMcpToolProvider>` from DI
+- **Scope filtering:** if `Current == null` → no filter (Phase 0 default); if set → filter providers by matching `Scope`
+- **Fallback context** when `Current` is null: `Scope = System`, `IsDeveloper = true`, other fields null. Means in Phase 0 the dispatcher passes a well-defined context to providers even before the Platform bridge lands.
+- **Tool dispatch:** iterates providers, asks each for `ListToolsAsync`, delegates to the first one whose list advertises the requested name. Unknown tool → `CallToolResult { IsError = true, Content = [text "Unknown tool: {name}"] }`.
+- **Resource dispatch:** same pattern; unknown URI → throws `InvalidOperationException` (SDK converts to JSON-RPC error).
+
+Build clean. Tests for the dispatcher land in step 5 via the end-to-end TestServer flow.
 Under `Tharga.Mcp/Internal/`:
 - Takes `IServiceProvider`, `IMcpContextAccessor`, and the SDK's existing handlers (if any) as inputs
 - Implements the four handler callbacks
@@ -69,7 +78,7 @@ Under `Tharga.Mcp/Internal/`:
   6. For ReadResource: find owning provider (by URI match — first provider whose `ListResourcesAsync` advertised the URI)
 - Build a per-call `IMcpContext` if `Current` is null, populate the scope field so provider methods see a consistent context
 
-### 4. Wire up in AddThargaMcp [ ]
+### 4. Wire up in AddThargaMcp [~]
 In `ThargaMcpServiceCollectionExtensions.AddThargaMcp`:
 - Register the dispatcher
 - Configure `McpServerOptions` via `services.Configure<McpServerOptions>(...)` or the SDK's recommended pattern so the dispatcher's handlers land on the final options
