@@ -105,21 +105,10 @@ Added `Sample/Tharga.Mcp.Sample/TimeToolProvider.cs` — demonstrates the Tharga
 
 Verified manually: `tools/list` now returns all three (`time_now`, `echo`, `greet`); `tools/call time_now` returns a fresh ISO-8601 UTC timestamp; attribute tools still work.
 
-### 7. README update [~]
-Replace the "Provider contracts" section placeholder text with a real example:
+### 7. README update [x]
+Replaced the "Provider contracts" section with a runnable `TimeToolProvider` example showing `IMcpToolProvider` end-to-end. Documents that attribute and provider paths coexist, and that scope filtering activates with Phase 1.
 
-```csharp
-public sealed class TimeToolProvider : IMcpToolProvider { ... }
-
-builder.Services.AddThargaMcp(mcp =>
-{
-    mcp.AddToolProvider<TimeToolProvider>();
-});
-```
-
-Add a note about scope-based filtering coming with Phase 1.
-
-### 8. Close the Requests.md entry [ ]
+### 8. Close the Requests.md entry [~]
 Per shared-instructions "Feature Requests (cross-project)":
 1. Mark the request Done in `$DOC_ROOT/Tharga/Requests.md` with completion date + summary
 2. Add Follow-up item: "Tharga.MongoDB.Mcp should upgrade Tharga.Mcp to X.Y.Z — IMcpToolProvider/IMcpResourceProvider bridge"
