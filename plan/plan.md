@@ -11,11 +11,12 @@ Feature: see `plan/feature.md`
 - Obsolete forwarder: `[Obsolete("...")] MapMcp(this IEndpointRouteBuilder)` → delegates to `UseThargaMcp()`
 - Build succeeds; 3 CS0618 warnings emitted exactly where expected (Program.cs + 2 test files still on `MapMcp`) — step 2 clears these.
 
-### 2. Update in-repo call sites [ ]
-- `Sample/Tharga.Mcp.Sample/Program.cs`: `app.MapMcp()` → `app.UseThargaMcp()`
-- `Tharga.Mcp.Tests/Routing/MapMcpTests.cs` → rename file + class to `UseThargaMcpTests`; calls switch to `UseThargaMcp()`
-- `Tharga.Mcp.Tests/Bridge/ProviderBridgeTests.cs`: `endpoints.MapMcp()` → `endpoints.UseThargaMcp()`
-- Add one new test that exercises the `[Obsolete]` `MapMcp()` forwarder to prove backward compat
+### 2. Update in-repo call sites [x]
+- `Sample/Tharga.Mcp.Sample/Program.cs`: switched to `app.UseThargaMcp()`
+- `Tharga.Mcp.Tests/Routing/MapMcpTests.cs` → `UseThargaMcpTests.cs` (file + class renamed; all tests use `UseThargaMcp()`)
+- `Tharga.Mcp.Tests/Bridge/ProviderBridgeTests.cs`: switched
+- New test `Obsolete_MapMcp_alias_still_maps_the_endpoint` proves backward compat (wraps the call in `#pragma warning disable CS0618`)
+- Build clean (0 warnings), 23/23 tests pass (22 original + 1 forwarder test)
 
 ### 3. Update README [ ]
 - Minimal usage example: `app.MapMcp()` → `app.UseThargaMcp()`

@@ -15,6 +15,6 @@ builder.Services.AddThargaMcp(mcp =>
 var app = builder.Build();
 
 app.MapGet("/", () => Results.Content(WelcomePage.Html, "text/html; charset=utf-8"));
-app.MapMcp();
+app.UseThargaMcp();
 
 app.Run();

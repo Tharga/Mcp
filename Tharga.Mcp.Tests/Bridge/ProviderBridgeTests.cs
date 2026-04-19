@@ -149,7 +149,7 @@ public class ProviderBridgeTests
                 {
                     app.UseRouting();
                     configureApp?.Invoke(app);
-                    app.UseEndpoints(endpoints => endpoints.MapMcp());
+                    app.UseEndpoints(endpoints => endpoints.UseThargaMcp());
                 });
             })
             .Build();
