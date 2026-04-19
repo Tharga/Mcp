@@ -78,10 +78,13 @@ internal static class WelcomePage
             <h2>Available tools</h2>
             <div class="tools">
                 <div class="tool">
-                    <span class="tool-name">greet(name: string)</span> — Returns a greeting for the given name.
+                    <span class="tool-name">greet(name: string)</span> — Returns a greeting for the given name. <span class="muted">(SDK [McpServerTool] attribute)</span>
                 </div>
                 <div class="tool">
-                    <span class="tool-name">echo(message: string)</span> — Echoes the input back.
+                    <span class="tool-name">echo(message: string)</span> — Echoes the input back. <span class="muted">(SDK [McpServerTool] attribute)</span>
+                </div>
+                <div class="tool">
+                    <span class="tool-name">time_now()</span> — Returns the current UTC time in ISO-8601 format. <span class="muted">(Tharga IMcpToolProvider)</span>
                 </div>
             </div>
 

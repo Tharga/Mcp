@@ -5,7 +5,11 @@ var builder = WebApplication.CreateBuilder(args);
 
 builder.Services.AddThargaMcp(mcp =>
 {
+    // Attribute-based tools via the SDK's pattern
     mcp.Services.AddMcpServer().WithTools<HelloTools>();
+
+    // Provider-based tools via the Tharga contract — both paths coexist
+    mcp.AddToolProvider<TimeToolProvider>();
 });
 
 var app = builder.Build();

@@ -100,12 +100,12 @@ Added `Tharga.Mcp.Tests/Bridge/`:
 
 Full suite: **22/22 tests pass**, build clean.
 
-### 6. Sample update [~]
-Add one `IMcpToolProvider` to `Sample/Tharga.Mcp.Sample/` (e.g. `TimeToolProvider` with a single `time.now` tool). Register it via `mcp.AddToolProvider<TimeToolProvider>()`. Leave `HelloTools` as-is so the sample shows both paths.
+### 6. Sample update [x]
+Added `Sample/Tharga.Mcp.Sample/TimeToolProvider.cs` — demonstrates the Tharga contract path (vs the attribute path used by `HelloTools`). Registers via `mcp.AddToolProvider<TimeToolProvider>()`. WelcomePage updated to tag each tool with its registration style.
 
-Update `WelcomePage.Html` tool list to mention the new tool.
+Verified manually: `tools/list` now returns all three (`time_now`, `echo`, `greet`); `tools/call time_now` returns a fresh ISO-8601 UTC timestamp; attribute tools still work.
 
-### 7. README update [ ]
+### 7. README update [~]
 Replace the "Provider contracts" section placeholder text with a real example:
 
 ```csharp
