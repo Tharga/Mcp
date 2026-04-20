@@ -17,8 +17,8 @@ Feature: see `plan/feature.md`
 - Sample `Program.cs` also sets `RequireAuth = false` with an explanatory comment
 - 27/27 tests pass
 
-### 3. README update [ ]
-- In "Minimal usage" section add a one-liner: `RequireAuth` defaults to true; call `.Options.RequireAuth = false` to opt out
+### 3. README update [x]
+- "Minimal usage" section now explains `RequireAuth` default, that it requires `UseAuthorization()` in the pipeline, and how to opt out.
 
 ### 4. Close Requests.md entry + Follow-up [ ]
 - Mark Done with summary

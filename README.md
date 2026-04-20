@@ -27,7 +27,9 @@ app.UseThargaMcp();
 app.Run();
 ```
 
-`UseThargaMcp()` exposes the MCP endpoint at `ThargaMcpOptions.EndpointBasePath` (default `/mcp`). An `[Obsolete]` `MapMcp()` alias still works for one release cycle but will be removed — update when you can.
+`UseThargaMcp()` exposes the MCP endpoint at `ThargaMcpOptions.EndpointBasePath` (default `/mcp`). It also honors `ThargaMcpOptions.RequireAuth` (default `true`) — when set, the endpoint calls `.RequireAuthorization()` and requires the consumer to wire `UseAuthorization()` + an authentication scheme in the pipeline. Set `mcp.Options.RequireAuth = false` during registration to expose the endpoint anonymously.
+
+An `[Obsolete]` `MapMcp()` alias still works for one release cycle but will be removed — update when you can.
 
 ## Defining tools
 
