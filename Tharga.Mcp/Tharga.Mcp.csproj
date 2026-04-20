@@ -8,7 +8,7 @@
 		<Company>Thargelion AB</Company>
 		<Product>Tharga Mcp</Product>
 		<Description>Foundation package for MCP (Model Context Protocol) infrastructure in the Tharga ecosystem. Provides contracts, registration, and transport for Tharga provider packages and applications.</Description>
-		<PackageIconUrl>http://thargelion.se/wp-content/uploads/2019/11/Thargelion-White-Icon-150.png</PackageIconUrl>
+		<PackageIconUrl>https://thargelion.se/wp-content/uploads/2026/04/Thargelion-Mcp-Icon-150.png</PackageIconUrl>
 		<GenerateDocumentationFile>True</GenerateDocumentationFile>
 		<PackageReadmeFile>README.md</PackageReadmeFile>
 		<PackageProjectUrl>https://github.com/Tharga/Mcp</PackageProjectUrl>
