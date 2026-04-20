@@ -17,8 +17,8 @@ Feature: see `plan/feature.md`
 - Extracted common middleware/list-names setup into `ListToolNamesUnderScopeAsync` helper
 - Full suite: 25/25 (was 23 + 2 new hierarchy tests)
 
-### 3. README update [ ]
-- Endpoint-scopes section — explicit hierarchy statement; remove the "enforced by providers" phrasing
+### 3. README update [x]
+- Endpoint-scopes section rewritten to describe the hierarchy: System → User+Team+System, Team → User+Team, User → User only. Also mentions anonymous/null context behavior and where the effective scope comes from.
 
 ### 4. Close Tharga.Mcp Requests.md entry [ ]
 - Mark Done with summary

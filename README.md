@@ -84,7 +84,7 @@ The two paths (attribute-based `[McpServerTool]` and contract-based `IMcpToolPro
 
 ## Endpoint scopes
 
-The master plan defines three scopes — `User` (`/mcp/me`), `Team` (`/mcp/team`), `System` (`/mcp/system`). **Phase 0 ships a single endpoint** (`/mcp`) that exposes the union of registered tools and resources; scope is carried on `IMcpContext.Scope` and enforced by providers. The three-endpoint split is deferred — see the master plan decision 2026-04-18.
+The master plan defines three scopes — `User` (`/mcp/me`), `Team` (`/mcp/team`), `System` (`/mcp/system`). **Phase 0 ships a single endpoint** (`/mcp`) that exposes registered tools and resources filtered by a **scope hierarchy**: a caller at `System` sees User + Team + System providers; `Team` sees User + Team; `User` sees only User. The caller's effective scope is read from `IMcpContextAccessor.Current` (populated by `Tharga.Platform.Mcp` from the authenticated principal, or left anonymous in Phase 0). When no context is populated, every provider is visible. The three-endpoint split is deferred — see the master plan decision 2026-04-18.
 
 ## Sample
 
