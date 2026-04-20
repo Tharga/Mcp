@@ -20,9 +20,9 @@ Feature: see `plan/feature.md`
 ### 3. README update [x]
 - "Minimal usage" section now explains `RequireAuth` default, that it requires `UseAuthorization()` in the pipeline, and how to opt out.
 
-### 4. Close Requests.md entry + Follow-up [ ]
-- Mark Done with summary
-- Follow-up for Tharga.Platform.Mcp: drop `MapMcpPlatform()` wrapper once they upgrade
+### 4. Close Requests.md entry + Follow-up [x]
+- Marked Done with summary and the behavior caveat about `UseAuthorization()` middleware needing to be wired.
+- Follow-up added: *"Tharga.Platform.Mcp should drop `MapMcpPlatform()` wrapper in favor of plain `app.UseThargaMcp()`."*
 
 ### 5. Close feature [ ]
 - Archive + delete plan/
