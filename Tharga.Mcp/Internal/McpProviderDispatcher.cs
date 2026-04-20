@@ -80,6 +80,12 @@ internal sealed class McpProviderDispatcher
         throw new InvalidOperationException($"Unknown resource uri: {uri}");
     }
 
+    /// <summary>
+    /// Resolves the caller context and the providers visible to it.
+    /// Scope is treated as a hierarchy — <c>System (2) &gt; Team (1) &gt; User (0)</c> — so a caller at
+    /// higher scope sees providers at their own scope plus every lower-privilege scope. When no context
+    /// is populated (Phase 0 default, no Platform bridge wired), every provider is visible.
+    /// </summary>
     private static (IMcpContext Context, IEnumerable<T> Providers) Resolve<T>(MessageContext request) where T : class, IMcpProvider
     {
         var services = request.Services
@@ -92,7 +98,7 @@ internal sealed class McpProviderDispatcher
         var allProviders = services.GetServices<T>();
         var filtered = current is null
             ? allProviders
-            : allProviders.Where(p => p.Scope == current.Scope);
+            : allProviders.Where(p => p.Scope <= current.Scope);
 
         return (context, filtered);
     }

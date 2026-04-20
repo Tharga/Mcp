@@ -99,14 +99,42 @@ public class ProviderBridgeTests
     }
 
     [Fact]
-    public async Task When_accessor_current_is_set_only_matching_scope_providers_are_visible()
+    public async Task User_scope_caller_sees_only_user_scope_providers()
     {
-        // Simulates the Phase 1 Platform bridge: middleware reads the caller's identity/scope
-        // and populates IMcpContextAccessor.Current before the MCP dispatcher runs.
+        // Hierarchy filter: User (0) <= User (0) → user_tool visible.
+        // System (2) > User (0) → system_tool hidden.
+        var names = await ListToolNamesUnderScopeAsync(McpScope.User);
+
+        names.Should().Contain("user_tool");
+        names.Should().NotContain("system_tool");
+    }
+
+    [Fact]
+    public async Task Team_scope_caller_sees_user_and_team_providers_but_not_system()
+    {
+        // Team (1) caller: User (0) <= 1 ✓, Team (1) <= 1 ✓, System (2) > 1 ✗.
+        var names = await ListToolNamesUnderScopeAsync(McpScope.Team, registerTeam: true);
+
+        names.Should().Contain(["user_tool", "team_tool"]);
+        names.Should().NotContain("system_tool");
+    }
+
+    [Fact]
+    public async Task System_scope_caller_sees_providers_from_all_scopes()
+    {
+        // System (2) caller: User (0) ✓, Team (1) ✓, System (2) ✓.
+        var names = await ListToolNamesUnderScopeAsync(McpScope.System, registerTeam: true);
+
+        names.Should().Contain(["user_tool", "team_tool", "system_tool"]);
+    }
+
+    private static async Task<List<string>> ListToolNamesUnderScopeAsync(McpScope callerScope, bool registerTeam = false)
+    {
         using var host = await BuildHostAsync(
             configureMcp: mcp =>
             {
                 mcp.AddToolProvider<UserScopeTool>();
+                if (registerTeam) mcp.AddToolProvider<TeamScopeTool>();
                 mcp.AddToolProvider<SystemScopeTool>();
             },
             configureApp: app =>
@@ -114,7 +142,7 @@ public class ProviderBridgeTests
                 app.Use(async (httpContext, next) =>
                 {
                     var accessor = httpContext.RequestServices.GetRequiredService<IMcpContextAccessor>();
-                    accessor.Current = new TestContext(McpScope.User);
+                    accessor.Current = new TestContext(callerScope);
                     try { await next(); }
                     finally { accessor.Current = null; }
                 });
@@ -122,13 +150,10 @@ public class ProviderBridgeTests
         using var client = await ConnectAsync(host);
 
         var list = await client.SendAsync("tools/list");
-        var names = list.GetProperty("result").GetProperty("tools")
+        return list.GetProperty("result").GetProperty("tools")
             .EnumerateArray()
             .Select(t => t.GetProperty("name").GetString())
             .ToList();
-
-        names.Should().Contain("user_tool");
-        names.Should().NotContain("system_tool");
     }
 
     private static Task<IHost> BuildHostAsync(Action<IThargaMcpBuilder> configure)
@@ -204,6 +229,15 @@ public class ProviderBridgeTests
             => Task.FromResult<IReadOnlyList<McpToolDescriptor>>([new McpToolDescriptor { Name = "user_tool" }]);
         public Task<McpToolResult> CallToolAsync(string toolName, JsonElement arguments, IMcpContext context, CancellationToken cancellationToken)
             => Task.FromResult(new McpToolResult { Content = [new McpContent { Text = "user" }] });
+    }
+
+    private sealed class TeamScopeTool : IMcpToolProvider
+    {
+        public McpScope Scope => McpScope.Team;
+        public Task<IReadOnlyList<McpToolDescriptor>> ListToolsAsync(IMcpContext context, CancellationToken cancellationToken)
+            => Task.FromResult<IReadOnlyList<McpToolDescriptor>>([new McpToolDescriptor { Name = "team_tool" }]);
+        public Task<McpToolResult> CallToolAsync(string toolName, JsonElement arguments, IMcpContext context, CancellationToken cancellationToken)
+            => Task.FromResult(new McpToolResult { Content = [new McpContent { Text = "team" }] });
     }
 
     private sealed class SystemScopeTool : IMcpToolProvider
