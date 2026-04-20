@@ -1,7 +1,9 @@
 using System.Net;
 using FluentAssertions;
+using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Builder;
 using Microsoft.AspNetCore.Hosting;
+using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Routing;
 using Microsoft.AspNetCore.TestHost;
 using Microsoft.Extensions.DependencyInjection;
@@ -47,6 +49,37 @@ public class UseThargaMcpTests
         response.StatusCode.Should().NotBe(HttpStatusCode.NotFound);
     }
 
+    [Fact]
+    public async Task RequireAuth_true_adds_AuthorizeAttribute_metadata_to_the_endpoint()
+    {
+        using var host = await BuildHostAsync(configureMcp: mcp => mcp.Options.RequireAuth = true, useObsoleteAlias: false);
+
+        var mcpEndpoints = GetMcpEndpoints(host);
+
+        mcpEndpoints.Should().NotBeEmpty();
+        mcpEndpoints.Should().OnlyContain(e => e.Metadata.GetMetadata<IAuthorizeData>() != null);
+    }
+
+    [Fact]
+    public async Task RequireAuth_false_does_not_add_AuthorizeAttribute_metadata_to_the_endpoint()
+    {
+        using var host = await BuildHostAsync(configureMcp: mcp => mcp.Options.RequireAuth = false, useObsoleteAlias: false);
+
+        var mcpEndpoints = GetMcpEndpoints(host);
+
+        mcpEndpoints.Should().NotBeEmpty();
+        mcpEndpoints.Should().OnlyContain(e => e.Metadata.GetMetadata<IAuthorizeData>() == null);
+    }
+
+    private static IReadOnlyList<Endpoint> GetMcpEndpoints(IHost host)
+    {
+        var sources = host.Services.GetServices<EndpointDataSource>();
+        return sources
+            .SelectMany(s => s.Endpoints)
+            .Where(e => e is RouteEndpoint re && re.RoutePattern.RawText?.StartsWith("/mcp", StringComparison.OrdinalIgnoreCase) == true)
+            .ToList();
+    }
+
     private static async Task<IHost> BuildHostAsync(Action<IThargaMcpBuilder> configureMcp, bool useObsoleteAlias)
     {
         var host = new HostBuilder()
@@ -56,7 +89,11 @@ public class UseThargaMcpTests
                 web.ConfigureServices(services =>
                 {
                     services.AddRouting();
-                    services.AddThargaMcp(mcp => configureMcp?.Invoke(mcp));
+                    services.AddThargaMcp(mcp =>
+                    {
+                        mcp.Options.RequireAuth = false;
+                        configureMcp?.Invoke(mcp);
+                    });
                 });
                 web.Configure(app =>
                 {
