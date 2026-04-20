@@ -20,12 +20,12 @@ Feature: see `plan/feature.md`
 ### 3. README update [x]
 - Endpoint-scopes section rewritten to describe the hierarchy: System → User+Team+System, Team → User+Team, User → User only. Also mentions anonymous/null context behavior and where the effective scope comes from.
 
-### 4. Close Tharga.Mcp Requests.md entry [ ]
-- Mark Done with summary
+### 4. Close Tharga.Mcp Requests.md entry [x]
+- Marked Done (2026-04-20) with a summary and explicit cross-reference to the Platform.Mcp counterpart that still needs to ship for consumers to be unblocked.
 
-### 5. File Platform.Mcp Requests.md entry + Follow-ups [ ]
-- New entry under `## Tharga.Platform` — claims-based scope computation in `HttpContextMcpContextAccessor`
-- Follow-ups for Quilt4Net Server + PlutusWave: upgrade both packages once the Platform side ships
+### 5. File Platform.Mcp Requests.md entry + Follow-ups [x]
+- New entry under `## Tharga.Platform`: *"HttpContextMcpContextAccessor should compute McpScope from claims instead of hardcoding User"* (Priority: High, Pending). Includes the proposed code block and explicit "consumers need both sides" note.
+- Follow-ups added at the top of Requests.md for Quilt4Net.Server + PlutusWave to upgrade both packages together.
 
 ### 6. Close feature [ ]
 - Archive + delete plan/
