@@ -5,6 +5,9 @@ var builder = WebApplication.CreateBuilder(args);
 
 builder.Services.AddThargaMcp(mcp =>
 {
+    // Sample runs without authentication — production consumers leave RequireAuth=true and wire auth middleware
+    mcp.Options.RequireAuth = false;
+
     // Attribute-based tools via the SDK's pattern
     mcp.Services.AddMcpServer().WithTools<HelloTools>();
 

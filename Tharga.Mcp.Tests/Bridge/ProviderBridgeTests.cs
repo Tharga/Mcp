@@ -168,7 +168,11 @@ public class ProviderBridgeTests
                 web.ConfigureServices(services =>
                 {
                     services.AddRouting();
-                    services.AddThargaMcp(configureMcp);
+                    services.AddThargaMcp(mcp =>
+                    {
+                        mcp.Options.RequireAuth = false;
+                        configureMcp?.Invoke(mcp);
+                    });
                 });
                 web.Configure(app =>
                 {
