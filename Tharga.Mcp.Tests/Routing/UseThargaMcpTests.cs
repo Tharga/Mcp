@@ -19,8 +19,9 @@ public class UseThargaMcpTests
     {
         using var host = await BuildHostAsync(configureMcp: null, useObsoleteAlias: false);
         using var client = host.GetTestClient();
+        var ct = TestContext.Current.CancellationToken;
 
-        var response = await client.PostAsync("/mcp", new StringContent(string.Empty));
+        var response = await client.PostAsync("/mcp", new StringContent(string.Empty), ct);
 
         response.StatusCode.Should().NotBe(HttpStatusCode.NotFound);
     }
@@ -30,9 +31,10 @@ public class UseThargaMcpTests
     {
         using var host = await BuildHostAsync(configureMcp: mcp => mcp.Options.EndpointBasePath = "/api/mcp", useObsoleteAlias: false);
         using var client = host.GetTestClient();
+        var ct = TestContext.Current.CancellationToken;
 
-        var defaultPath = await client.PostAsync("/mcp", new StringContent(string.Empty));
-        var custom = await client.PostAsync("/api/mcp", new StringContent(string.Empty));
+        var defaultPath = await client.PostAsync("/mcp", new StringContent(string.Empty), ct);
+        var custom = await client.PostAsync("/api/mcp", new StringContent(string.Empty), ct);
 
         defaultPath.StatusCode.Should().Be(HttpStatusCode.NotFound);
         custom.StatusCode.Should().NotBe(HttpStatusCode.NotFound);
@@ -43,8 +45,9 @@ public class UseThargaMcpTests
     {
         using var host = await BuildHostAsync(configureMcp: null, useObsoleteAlias: true);
         using var client = host.GetTestClient();
+        var ct = TestContext.Current.CancellationToken;
 
-        var response = await client.PostAsync("/mcp", new StringContent(string.Empty));
+        var response = await client.PostAsync("/mcp", new StringContent(string.Empty), ct);
 
         response.StatusCode.Should().NotBe(HttpStatusCode.NotFound);
     }

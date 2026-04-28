@@ -20,11 +20,12 @@ public class ProviderContractTests
         var descriptor = new McpResourceDescriptor { Uri = "hello://one", Name = "One", MimeType = "text/plain" };
         IMcpResourceProvider provider = new FakeResourceProvider(McpScope.User, [descriptor]);
         var context = FakeContext.System();
+        var ct = TestContext.Current.CancellationToken;
 
-        var list = await provider.ListResourcesAsync(context, default);
+        var list = await provider.ListResourcesAsync(context, ct);
         list.Should().ContainSingle().Which.Should().BeEquivalentTo(descriptor);
 
-        var content = await provider.ReadResourceAsync(descriptor.Uri, context, default);
+        var content = await provider.ReadResourceAsync(descriptor.Uri, context, ct);
         content.Uri.Should().Be(descriptor.Uri);
         content.Text.Should().Be("payload for hello://one");
     }
@@ -35,12 +36,13 @@ public class ProviderContractTests
         var tool = new McpToolDescriptor { Name = "echo", Description = "Echoes input." };
         IMcpToolProvider provider = new FakeToolProvider(McpScope.Team, [tool]);
         var context = FakeContext.System();
+        var ct = TestContext.Current.CancellationToken;
 
-        var list = await provider.ListToolsAsync(context, default);
+        var list = await provider.ListToolsAsync(context, ct);
         list.Should().ContainSingle().Which.Name.Should().Be("echo");
 
         using var args = JsonDocument.Parse("""{"msg":"hi"}""");
-        var result = await provider.CallToolAsync("echo", args.RootElement, context, default);
+        var result = await provider.CallToolAsync("echo", args.RootElement, context, ct);
 
         result.IsError.Should().BeFalse();
         result.Content.Should().ContainSingle().Which.Text.Should().Contain("hi");
