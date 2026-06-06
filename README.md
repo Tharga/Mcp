@@ -4,6 +4,8 @@ Foundation package for [MCP (Model Context Protocol)](https://modelcontextprotoc
 
 `Tharga.Mcp` itself has **no dependency on any other Tharga package** — the auth/scope/audit integration lives in `Tharga.Platform.Mcp` (Phase 1).
 
+**Docs:** [mcp.tharga.net](https://mcp.tharga.net) — guides, API reference, and the provider/scope/auth walkthroughs.
+
 ## Install
 
 ```bash
