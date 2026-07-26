@@ -19,7 +19,13 @@
 		<IncludeSymbols>true</IncludeSymbols>
 	</PropertyGroup>
 	<PropertyGroup>
-		<NoWarn>1701;1702;CS1591;CS0809</NoWarn>
+		<!--
+			NU5048: PackageIconUrl is deprecated in favour of an embedded PackageIcon.
+			Suppressed deliberately. Tharga packages reference their icon from
+			https://thargelion.net/assets/ so all package icons are maintained in one
+			place and can be updated without republishing a package.
+		-->
+		<NoWarn>1701;1702;CS1591;CS0809;NU5048</NoWarn>
 	</PropertyGroup>
 	<ItemGroup>
 		<None Include="..\README.md" Pack="true" PackagePath="\" />
