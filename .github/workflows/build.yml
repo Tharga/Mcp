@@ -115,8 +115,6 @@ jobs:
       - name: Pack
         run: |
           dotnet pack Tharga.Mcp/Tharga.Mcp.csproj -c Release --no-build -o ./artifacts -p:Version=${{ steps.buildversion.outputs.version }}
-        run: |
-          dotnet pack Tharga.Mcp/Tharga.Mcp.csproj -c Release --no-build -o ./artifacts -p:PackageVersion=${{ steps.preversion.outputs.version }}
 
       - name: Upload artifacts
         uses: actions/upload-artifact@v4
