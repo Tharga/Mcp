@@ -4,7 +4,7 @@ _layout: landing
 
 # Tharga.Mcp
 
-Foundation package for [MCP (Model Context Protocol)](https://modelcontextprotocol.io/) infrastructure in the Tharga ecosystem. Wraps the official [`ModelContextProtocol`](https://www.nuget.org/packages/ModelContextProtocol) C# SDK with a Tharga-flavored registration pattern so downstream provider packages (`Tharga.MongoDB.Mcp`, `Tharga.Platform.Mcp`, etc.) compose cleanly inside a single `AddThargaMcp(...)` callback. Built for **.NET 8 / 9 / 10**.
+Foundation package for [MCP (Model Context Protocol)](https://modelcontextprotocol.io/) infrastructure in the Tharga ecosystem. Wraps the official [`ModelContextProtocol`](https://www.nuget.org/packages/ModelContextProtocol) C# SDK with a Tharga-flavored registration pattern so downstream provider packages (`Tharga.MongoDB.Mcp`, `Tharga.Platform.Mcp`, etc.) compose cleanly inside a single `AddThargaMcp(...)` callback. Built for **.NET 10**.
 
 ## Package
 
