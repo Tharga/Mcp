@@ -92,7 +92,8 @@ public class ProviderBridgeTests
 
         var call = await client.SendAsync("tools/call", new { name = "echo_args", arguments = new { a = 1, b = "two", c = true } });
         var text = call.GetProperty("result").GetProperty("content").EnumerateArray().First().GetProperty("text").GetString();
-        using var parsed = JsonDocument.Parse(text);
+        text.Should().NotBeNull();
+        using var parsed = JsonDocument.Parse(text!);
         parsed.RootElement.GetProperty("a").GetInt32().Should().Be(1);
         parsed.RootElement.GetProperty("b").GetString().Should().Be("two");
         parsed.RootElement.GetProperty("c").GetBoolean().Should().BeTrue();

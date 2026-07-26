@@ -52,7 +52,8 @@ internal sealed class McpJsonRpcTestClient : IDisposable
         using var content = new StringContent(jsonBody, Encoding.UTF8);
         content.Headers.ContentType = new MediaTypeHeaderValue("application/json");
 
-        using var request = new HttpRequestMessage(HttpMethod.Post, "/mcp") { Content = content };
+        using var request = new HttpRequestMessage(HttpMethod.Post, "/mcp");
+        request.Content = content;
         request.Headers.Accept.Add(new MediaTypeWithQualityHeaderValue("application/json"));
         request.Headers.Accept.Add(new MediaTypeWithQualityHeaderValue("text/event-stream"));
         if (_sessionId != null) request.Headers.Add("Mcp-Session-Id", _sessionId);

@@ -1,0 +1,20 @@
+root = true
+
+[*]
+charset = utf-8
+end_of_line = crlf
+insert_final_newline = true
+indent_style = space
+indent_size = 4
+trim_trailing_whitespace = true
+
+[*.{csproj,props,targets,yml,yaml,json,md}]
+indent_size = 2
+
+# Test projects instantiate fixture and provider types reflectively, through the
+# DI container or through xUnit, so ReSharper cannot see the construction site.
+# ClassNeverInstantiated is a false positive there and would otherwise be the
+# single largest category in the inspection report.
+[**/*.Tests/**.cs]
+resharper_class_never_instantiated_local_highlighting = none
+resharper_class_never_instantiated_global_highlighting = none

@@ -1,5 +1,4 @@
 using System.Text.Json;
-using Tharga.Mcp;
 
 namespace Tharga.Mcp.Sample;
 
