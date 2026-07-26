@@ -1,4 +1,4 @@
-<Project Sdk="Microsoft.NET.Sdk">
+﻿<Project Sdk="Microsoft.NET.Sdk">
 
 	<PropertyGroup>
 		<TargetFrameworks>net10.0</TargetFrameworks>
@@ -17,6 +17,10 @@
 		<PublishRepositoryUrl>true</PublishRepositoryUrl>
 		<IncludeSource>true</IncludeSource>
 		<IncludeSymbols>true</IncludeSymbols>
+		<!-- Without this, pack emits the legacy .symbols.nupkg, whose name still ends
+		     in .nupkg, so the release push loop uploads it as a regular package and
+		     nuget.org rejects it as a duplicate. No symbols ever shipped. -->
+		<SymbolPackageFormat>snupkg</SymbolPackageFormat>
 	</PropertyGroup>
 	<PropertyGroup>
 		<!--
