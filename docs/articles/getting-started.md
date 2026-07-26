@@ -6,7 +6,7 @@
 dotnet add package Tharga.Mcp
 ```
 
-Tharga.Mcp targets **.NET 8 / 9 / 10** and depends on the official [`ModelContextProtocol`](https://www.nuget.org/packages/ModelContextProtocol) C# SDK.
+Tharga.Mcp targets **.NET 10** and depends on the official [`ModelContextProtocol`](https://www.nuget.org/packages/ModelContextProtocol) C# SDK.
 
 ## Minimal host
 

@@ -37,8 +37,7 @@ public static class ThargaMcpServiceCollectionExtensions
 
     private static T GetOrCreateSingleton<T>(IServiceCollection services, Func<T> factory) where T : class
     {
-        var existing = services.FirstOrDefault(d => d.ServiceType == typeof(T))?.ImplementationInstance as T;
-        if (existing is not null) return existing;
+        if (services.FirstOrDefault(d => d.ServiceType == typeof(T))?.ImplementationInstance is T existing) return existing;
 
         var instance = factory();
         services.AddSingleton(instance);
