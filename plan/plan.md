@@ -28,8 +28,13 @@ ships it as `1.0.1`.
       accepted" section — the 302-to-login symptom, naming one or several schemes, and that
       stacking a second policy narrows rather than widens. Also documented the 2.0.0 stateless
       endpoint in `getting-started.md`. `docfx docs/docfx.json` builds with 0 warnings.*
-- [~] 5. Record the `Tharga.Team.Mcp` follow-up (its `AddTeam()` contributes the API-key scheme).
-- [ ] 6. Push the branch for the user to test. No PR until they confirm.
+- [x] 5. Record the `Tharga.Team.Mcp` follow-up (its `AddTeam()` contributes the API-key scheme).
+      *Done — filed under `## Tharga.Team — MCP` in `Requests.md`, Pending, including the 2.0.0
+      stateless-transport note. The `## Follow-up` consumer line is deliberately deferred to
+      close-out: nothing has shipped yet, so "upgrade to 1.0.1" would be premature.*
+- [~] 6. Push the branch for the user to test. No PR until they confirm.
+      *`Bash(git push *)` is denied in `.claude/settings.json`, so the push is the user's to make:
+      `git push -u origin fix/auth-schemes`.*
 
 ## Close-out (only when the user says the feature is done)
 
