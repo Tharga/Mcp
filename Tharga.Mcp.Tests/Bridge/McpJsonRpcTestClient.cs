@@ -5,11 +5,22 @@ using System.Text.Json;
 namespace Tharga.Mcp.Tests.Bridge;
 
 /// <summary>
-/// Minimal raw JSON-RPC MCP client for end-to-end tests. Handles the initialize handshake, captures the Mcp-Session-Id,
-/// and exposes Send for subsequent requests. Responses are parsed from the SDK's text/event-stream body.
+/// Minimal raw JSON-RPC MCP client for end-to-end tests. Handles the initialize handshake, captures the Mcp-Session-Id
+/// when the server issues one, and exposes Send for subsequent requests. Responses are parsed from the SDK's
+/// text/event-stream body.
 /// </summary>
+/// <remarks>
+/// A session is optional: ModelContextProtocol 2.0.0 made <c>HttpServerTransportOptions.Stateless</c> default to true,
+/// and a stateless server creates no session and returns no <c>Mcp-Session-Id</c>. Subsequent requests then carry no
+/// session header, which is what the server expects.
+/// </remarks>
 internal sealed class McpJsonRpcTestClient : IDisposable
 {
+    /// <summary>The initialize envelope, shared with tests that post it raw to observe the response themselves.</summary>
+    internal const string InitializeRequest = """{"jsonrpc":"2.0","id":1,"method":"initialize","params":{"protocolVersion":"2024-11-05","capabilities":{},"clientInfo":{"name":"test","version":"1.0"}}}""";
+
+    private const string SessionHeader = "Mcp-Session-Id";
+
     private readonly HttpClient _http;
     private string _sessionId;
     private int _nextId = 2;
@@ -21,10 +32,9 @@ internal sealed class McpJsonRpcTestClient : IDisposable
 
     public async Task InitializeAsync()
     {
-        var body = """{"jsonrpc":"2.0","id":1,"method":"initialize","params":{"protocolVersion":"2024-11-05","capabilities":{},"clientInfo":{"name":"test","version":"1.0"}}}""";
-        using var response = await PostRawAsync(body);
+        using var response = await PostRawAsync(InitializeRequest);
         response.EnsureSuccessStatusCode();
-        _sessionId = response.Headers.GetValues("Mcp-Session-Id").Single();
+        _sessionId = response.Headers.TryGetValues(SessionHeader, out var sessionIds) ? sessionIds.Single() : null;
 
         using var notify = await PostRawAsync("""{"jsonrpc":"2.0","method":"notifications/initialized"}""");
         notify.EnsureSuccessStatusCode();
@@ -56,7 +66,7 @@ internal sealed class McpJsonRpcTestClient : IDisposable
         request.Content = content;
         request.Headers.Accept.Add(new MediaTypeWithQualityHeaderValue("application/json"));
         request.Headers.Accept.Add(new MediaTypeWithQualityHeaderValue("text/event-stream"));
-        if (_sessionId != null) request.Headers.Add("Mcp-Session-Id", _sessionId);
+        if (_sessionId != null) request.Headers.Add(SessionHeader, _sessionId);
 
         return await _http.SendAsync(request);
     }

@@ -1,12 +1,13 @@
 # Authorization
 
-`ThargaMcpOptions.RequireAuth` controls whether `UseThargaMcp()` chains `.RequireAuthorization()` on the mapped endpoint.
+Two options govern the endpoint's authorization: `RequireAuth` decides *whether* a caller must be authenticated, and `AuthenticationSchemes` decides *which credentials* count.
 
 ```csharp
 public sealed class ThargaMcpOptions
 {
     public string EndpointBasePath { get; set; } = "/mcp";
     public bool RequireAuth { get; set; } = true;  // default
+    public IList<string> AuthenticationSchemes { get; } = [];
 }
 ```
 
@@ -20,18 +21,58 @@ public static IEndpointConventionBuilder UseThargaMcp(this IEndpointRouteBuilder
 
     if (options.RequireAuth)
     {
-        conventionBuilder.RequireAuthorization();
+        var policy = new AuthorizationPolicyBuilder()
+            .AddAuthenticationSchemes([.. options.AuthenticationSchemes])
+            .RequireAuthenticatedUser()
+            .Build();
+
+        conventionBuilder.RequireAuthorization(policy);
     }
 
     return conventionBuilder;
 }
 ```
 
-The `.RequireAuthorization()` call without arguments applies the **default** authorization policy — which is just "authenticated user required". Additional `.RequireAuthorization("PolicyName")` calls stack rather than replace, so consumers can layer on top:
+Additional `.RequireAuthorization("PolicyName")` calls stack rather than replace, so consumers can layer on top:
 
 ```csharp
 app.UseThargaMcp().RequireAuthorization("SystemApiKeyPolicy");
 ```
+
+Because they stack with AND, a second policy **narrows** access — it cannot widen it. Adding one is not a way to make another credential acceptable; for that, name the scheme (below).
+
+## Which credential is accepted
+
+`AuthenticationSchemes` is empty by default, and an empty list means the endpoint authenticates against the application's **default scheme**.
+
+That default is the thing to watch. In a host with interactive sign-in the default scheme is OIDC or cookies, so an MCP caller presenting an API key is not merely rejected — it is *challenged*, and answers with a `302` to a login page:
+
+```
+POST /mcp  with  X-API-KEY: <valid key>
+→ HTTP 302 to login.microsoftonline.com
+```
+
+MCP callers are agents. There is normally no user to sign in, so an API key is the expected credential — which makes this the one configuration that has to work. Name the scheme and it does:
+
+```csharp
+builder.Services.AddThargaMcp(mcp =>
+{
+    mcp.Options.AuthenticationSchemes.Add(ApiKeyConstants.SchemeName);
+});
+```
+
+Add more than one where more than one credential should be accepted — an agent with a key and a signed-in user exploring the same endpoint:
+
+```csharp
+mcp.Options.AuthenticationSchemes.Add(ApiKeyConstants.SchemeName);
+mcp.Options.AuthenticationSchemes.Add(CookieAuthenticationDefaults.AuthenticationScheme);
+```
+
+Naming schemes never weakens the requirement: an anonymous caller is still refused. It only decides which handlers get to examine the request.
+
+Bridge packages contribute the schemes their callers use, so a host that registers one need not know about schemes at all — `Tharga.Team.Mcp`'s `AddTeam()` adds the API-key scheme itself. A host is free to add its own alongside.
+
+> **Upgrading:** `AuthenticationSchemes` is additive. An empty list produces exactly the previous behavior, so nothing changes for an existing host until it (or a bridge package) adds a scheme.
 
 ## ⚠️ The `UseAuthorization()` prerequisite
 
@@ -84,7 +125,7 @@ app.UseThargaMcp();  // RequireAuth is true by default — Platform.Mcp wires th
 
 That gives you:
 
-- Auth enforced on `/mcp` (no policy → default "authenticated user required").
+- Auth enforced on `/mcp`, against whichever schemes the bridge contributed (the default scheme when it contributed none).
 - `IMcpContext` populated per-request from claims (see [Scopes](scopes.md) for how claims map to `McpScope`).
 - Audit hooks via Tharga.Platform's `CompositeAuditLogger`.
 
@@ -111,3 +152,17 @@ endpoints.Should().OnlyContain(e => e.Metadata.GetMetadata<IAuthorizeData>() != 
 ```
 
 `Tharga.Mcp.Tests/Routing/UseThargaMcpTests` has two tests in this shape — one for the `true` case, one for the `false` case.
+
+To assert *which* schemes the policy names, read the `AuthorizationPolicy` off the endpoint rather than sending a request — the MCP endpoint negotiates content before a credential is relevant, so a status code describes the request body more than the policy:
+
+```csharp
+var policy = host.Services.GetRequiredService<EndpointDataSource>().Endpoints
+    .Select(e => e.Metadata.GetMetadata<AuthorizationPolicy>())
+    .FirstOrDefault(p => p != null);
+
+policy.AuthenticationSchemes.Should().ContainSingle().Which.Should().Be(ApiKeyConstants.SchemeName);
+```
+
+`Tharga.Mcp.Tests/Routing/UseThargaMcpAuthenticationSchemeTests` covers this.
+
+To assert the *behavior* instead — that a key-bearing agent is answered rather than redirected — register a stand-in for each scheme (one that challenges with a `302`, one that accepts a header) and post an `initialize` request through `TestServer`. `Tharga.Mcp.Tests/Routing/UseThargaMcpApiKeyTests` does that, and is the test that fails if the endpoint ever falls back to the default scheme again.

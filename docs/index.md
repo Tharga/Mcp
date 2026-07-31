@@ -33,13 +33,13 @@ app.UseThargaMcp();
 app.Run();
 ```
 
-`UseThargaMcp()` exposes the MCP endpoint at `ThargaMcpOptions.EndpointBasePath` (default `/mcp`). It honors `ThargaMcpOptions.RequireAuth` (default `true`); see [Authorization](articles/authorization.md).
+`UseThargaMcp()` exposes the MCP endpoint at `ThargaMcpOptions.EndpointBasePath` (default `/mcp`). It honors `ThargaMcpOptions.RequireAuth` (default `true`) and `ThargaMcpOptions.AuthenticationSchemes`, which decides which credentials that requirement accepts; see [Authorization](articles/authorization.md).
 
 ## What's in the box
 
 - **Provider contracts** — `IMcpToolProvider` and `IMcpResourceProvider` for runtime-discovered tools and resources, alongside the SDK's attribute-based `[McpServerTool]` pattern. See [Defining providers](articles/providers.md).
 - **Scope hierarchy** — `User` < `Team` < `System`. A System caller sees everything; Team sees User + Team; User sees only User. See [Scopes](articles/scopes.md).
-- **Auto-authorization** — `RequireAuth = true` chains `.RequireAuthorization()` on the mapped endpoint. See [Authorization](articles/authorization.md).
+- **Auto-authorization** — `RequireAuth = true` requires an authenticated caller on the mapped endpoint, against the schemes named in `AuthenticationSchemes` (the application's default scheme when none are). See [Authorization](articles/authorization.md).
 - **Coexistence with attribute-based tools** — both registration paths work side-by-side in the same server.
 
 ## Repo

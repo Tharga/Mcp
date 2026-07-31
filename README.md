@@ -29,7 +29,18 @@ app.UseThargaMcp();
 app.Run();
 ```
 
-`UseThargaMcp()` exposes the MCP endpoint at `ThargaMcpOptions.EndpointBasePath` (default `/mcp`). It also honors `ThargaMcpOptions.RequireAuth` (default `true`) — when set, the endpoint calls `.RequireAuthorization()` and requires the consumer to wire `UseAuthorization()` + an authentication scheme in the pipeline. Set `mcp.Options.RequireAuth = false` during registration to expose the endpoint anonymously.
+`UseThargaMcp()` exposes the MCP endpoint at `ThargaMcpOptions.EndpointBasePath` (default `/mcp`). It also honors `ThargaMcpOptions.RequireAuth` (default `true`) — when set, the endpoint requires an authenticated caller, and the consumer must wire `UseAuthorization()` + an authentication scheme in the pipeline. Set `mcp.Options.RequireAuth = false` during registration to expose the endpoint anonymously.
+
+`ThargaMcpOptions.AuthenticationSchemes` names the schemes that requirement authenticates against. Left empty it uses the application's **default scheme** — which in a host with interactive sign-in is OIDC, so an agent presenting an API key gets redirected to a login page instead of being let in. Name the scheme to accept it:
+
+```csharp
+builder.Services.AddThargaMcp(mcp =>
+{
+    mcp.Options.AuthenticationSchemes.Add(ApiKeyConstants.SchemeName);
+});
+```
+
+Bridge packages add the schemes their own callers use, so a host registering one usually needs nothing here. See [Authorization](https://mcp.tharga.net/articles/authorization.html).
 
 An `[Obsolete]` `MapMcp()` alias still works for one release cycle but will be removed — update when you can.
 
