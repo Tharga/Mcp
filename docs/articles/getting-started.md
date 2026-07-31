@@ -56,9 +56,11 @@ npx @modelcontextprotocol/inspector
 
 1. Resolves `ThargaMcpOptions` from DI (filled in by your `AddThargaMcp(...)` callback).
 2. Calls the SDK's `MapMcp(options.EndpointBasePath)` — default base path is `/mcp`.
-3. If `options.RequireAuth == true` (the default), chains `.RequireAuthorization()` on the returned `IEndpointConventionBuilder`. See [Authorization](authorization.md) for the `UseAuthorization()` prerequisite.
+3. If `options.RequireAuth == true` (the default), requires an authenticated caller on the returned `IEndpointConventionBuilder`, against the schemes in `options.AuthenticationSchemes` — or the application's default scheme when that list is empty. See [Authorization](authorization.md) for the `UseAuthorization()` prerequisite and for why the default scheme rarely suits an agent.
 
 The returned `IEndpointConventionBuilder` can be further chained — `app.UseThargaMcp().RequireAuthorization("SystemApiKeyPolicy")` stacks the policy.
+
+The endpoint is **stateless**: from ModelContextProtocol 2.0.0 the SDK's `HttpServerTransportOptions.Stateless` defaults to `true`, so the server creates no transport session and issues no `Mcp-Session-Id`. Clients that captured that header from an earlier version simply stop receiving one; they need not send it back. Legacy stateful behavior is opt-in through the SDK's own transport options.
 
 ## Adding a provider package
 

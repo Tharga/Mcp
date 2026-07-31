@@ -22,9 +22,13 @@ ships it as `1.0.1`.
       *Done — 5 tests. Asserted on policy metadata rather than over HTTP: the MCP endpoint
       negotiates content before a credential matters, so a status code would describe the request
       body more than the policy. 32/32 pass.*
-- [~] 4. Documentation — `README.md`, `docs/index.md`, `docs/articles/authorization.md`,
+- [x] 4. Documentation — `README.md`, `docs/index.md`, `docs/articles/authorization.md`,
       `docs/articles/getting-started.md`.
-- [ ] 5. Record the `Tharga.Team.Mcp` follow-up (its `AddTeam()` contributes the API-key scheme).
+      *Done, plus `docs/articles/index.md`. `authorization.md` gained a "Which credential is
+      accepted" section — the 302-to-login symptom, naming one or several schemes, and that
+      stacking a second policy narrows rather than widens. Also documented the 2.0.0 stateless
+      endpoint in `getting-started.md`. `docfx docs/docfx.json` builds with 0 warnings.*
+- [~] 5. Record the `Tharga.Team.Mcp` follow-up (its `AddTeam()` contributes the API-key scheme).
 - [ ] 6. Push the branch for the user to test. No PR until they confirm.
 
 ## Close-out (only when the user says the feature is done)
