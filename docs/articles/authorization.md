@@ -164,3 +164,5 @@ policy.AuthenticationSchemes.Should().ContainSingle().Which.Should().Be(ApiKeyCo
 ```
 
 `Tharga.Mcp.Tests/Routing/UseThargaMcpAuthenticationSchemeTests` covers this.
+
+To assert the *behavior* instead — that a key-bearing agent is answered rather than redirected — register a stand-in for each scheme (one that challenges with a `302`, one that accepts a header) and post an `initialize` request through `TestServer`. `Tharga.Mcp.Tests/Routing/UseThargaMcpApiKeyTests` does that, and is the test that fails if the endpoint ever falls back to the default scheme again.

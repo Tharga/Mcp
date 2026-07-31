@@ -16,6 +16,9 @@ namespace Tharga.Mcp.Tests.Bridge;
 /// </remarks>
 internal sealed class McpJsonRpcTestClient : IDisposable
 {
+    /// <summary>The initialize envelope, shared with tests that post it raw to observe the response themselves.</summary>
+    internal const string InitializeRequest = """{"jsonrpc":"2.0","id":1,"method":"initialize","params":{"protocolVersion":"2024-11-05","capabilities":{},"clientInfo":{"name":"test","version":"1.0"}}}""";
+
     private const string SessionHeader = "Mcp-Session-Id";
 
     private readonly HttpClient _http;
@@ -29,8 +32,7 @@ internal sealed class McpJsonRpcTestClient : IDisposable
 
     public async Task InitializeAsync()
     {
-        var body = """{"jsonrpc":"2.0","id":1,"method":"initialize","params":{"protocolVersion":"2024-11-05","capabilities":{},"clientInfo":{"name":"test","version":"1.0"}}}""";
-        using var response = await PostRawAsync(body);
+        using var response = await PostRawAsync(InitializeRequest);
         response.EnsureSuccessStatusCode();
         _sessionId = response.Headers.TryGetValues(SessionHeader, out var sessionIds) ? sessionIds.Single() : null;
 
