@@ -15,9 +15,14 @@ ships it as `1.0.1`.
       header and 8 bridge tests failed. It now takes a session only when one is offered. 32/32 pass.
       Consequence for consumers: the endpoint is stateless by default from this release — see
       step 4.*
-- [~] 2. `ThargaMcpOptions.AuthenticationSchemes` and the policy built from it in `UseThargaMcp()`.
-- [ ] 3. Tests over the endpoint's authorization policy metadata.
-- [ ] 4. Documentation — `README.md`, `docs/index.md`, `docs/articles/authorization.md`,
+- [x] 2. `ThargaMcpOptions.AuthenticationSchemes` and the policy built from it in `UseThargaMcp()`.
+      *Done. The policy always names the contributed schemes — an empty list adds none, which is
+      exactly the previous default-scheme behavior, so no host changes on upgrade.*
+- [x] 3. Tests over the endpoint's authorization policy metadata.
+      *Done — 5 tests. Asserted on policy metadata rather than over HTTP: the MCP endpoint
+      negotiates content before a credential matters, so a status code would describe the request
+      body more than the policy. 32/32 pass.*
+- [~] 4. Documentation — `README.md`, `docs/index.md`, `docs/articles/authorization.md`,
       `docs/articles/getting-started.md`.
 - [ ] 5. Record the `Tharga.Team.Mcp` follow-up (its `AddTeam()` contributes the API-key scheme).
 - [ ] 6. Push the branch for the user to test. No PR until they confirm.

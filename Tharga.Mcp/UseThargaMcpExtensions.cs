@@ -1,3 +1,4 @@
+using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Builder;
 using Microsoft.AspNetCore.Routing;
 using Microsoft.Extensions.DependencyInjection;
@@ -10,9 +11,10 @@ public static class UseThargaMcpExtensions
     /// <summary>
     /// Maps the MCP HTTP endpoint group at <see cref="ThargaMcpOptions.EndpointBasePath"/> (default <c>/mcp</c>).
     /// The configured <c>ModelContextProtocol</c> server handles discovery and tool/resource invocation.
-    /// When <see cref="ThargaMcpOptions.RequireAuth"/> is <c>true</c> (the default), calls <c>.RequireAuthorization()</c>
-    /// on the mapped endpoint so only authenticated callers can reach it. Set <c>mcp.Options.RequireAuth = false</c>
-    /// during registration to expose the endpoint anonymously.
+    /// When <see cref="ThargaMcpOptions.RequireAuth"/> is <c>true</c> (the default), requires an authenticated
+    /// caller — against <see cref="ThargaMcpOptions.AuthenticationSchemes"/> when a bridge package has
+    /// contributed any, and against the application's default scheme otherwise. Set
+    /// <c>mcp.Options.RequireAuth = false</c> during registration to expose the endpoint anonymously.
     /// </summary>
     /// <remarks>
     /// Phase 0 exposes a single endpoint. The three-level endpoint split (<c>/mcp/me</c>, <c>/mcp/team</c>, <c>/mcp/system</c>)
@@ -28,7 +30,12 @@ public static class UseThargaMcpExtensions
 
         if (options.RequireAuth)
         {
-            conventionBuilder.RequireAuthorization();
+            var policy = new AuthorizationPolicyBuilder()
+                .AddAuthenticationSchemes([.. options.AuthenticationSchemes])
+                .RequireAuthenticatedUser()
+                .Build();
+
+            conventionBuilder.RequireAuthorization(policy);
         }
 
         return conventionBuilder;
