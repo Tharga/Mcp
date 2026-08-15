@@ -1,4 +1,5 @@
 using System.Text.Json;
+using ModelContextProtocol.AspNetCore;
 using ModelContextProtocol.Protocol;
 
 namespace Tharga.Mcp.Internal;
@@ -6,6 +7,14 @@ namespace Tharga.Mcp.Internal;
 internal static class McpTypeMappers
 {
     private static readonly JsonElement _defaultInputSchema = JsonDocument.Parse("""{"type":"object"}""").RootElement;
+
+    public static HttpServerSessionMode ToSdkSessionMode(McpSessionMode mode) => mode switch
+    {
+        McpSessionMode.Stateless => HttpServerSessionMode.Stateless,
+        McpSessionMode.Stateful => HttpServerSessionMode.Stateful,
+        McpSessionMode.StatefulForInitializeClients => HttpServerSessionMode.StatefulForInitializeClients,
+        _ => throw new ArgumentOutOfRangeException(nameof(mode), mode, $"No {nameof(HttpServerSessionMode)} is mapped for this {nameof(McpSessionMode)}."),
+    };
 
     public static Tool ToSdkTool(McpToolDescriptor descriptor) => new()
     {

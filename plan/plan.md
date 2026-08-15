@@ -32,29 +32,42 @@ Scope: `plan/feature.md`
         unchanged. `--verbosity normal` dropped: under MTP it sets MSBuild verbosity, not
         test verbosity, so it was only ever noise here.
 
-- [ ] **2. Add the `McpSessionMode` contract**
+- [x] **2. Add the `McpSessionMode` contract** — done. `Tharga.Mcp/McpSessionMode.cs`.
       New `Tharga.Mcp/McpSessionMode.cs` with `Stateless`, `Stateful` and
       `StatefulForInitializeClients`. XML docs on each member say what it costs, not just what
       it is — `Stateful` refuses `2026-07-28`+ requests with `-32022 UnsupportedProtocolVersion`
       and forces a downgrade; `Stateless` disables the GET/DELETE/`/sse` endpoints and client
       sampling, elicitation and roots.
 
-- [ ] **3. Map it to the SDK**
+- [x] **3. Map it to the SDK** — done. `ToSdkSessionMode` throws on an unmapped value.
       Add `ToSdkSessionMode` to `Internal/McpTypeMappers.cs`, matching the file's existing
       `ToSdkX` naming. Throw on an unmapped value rather than defaulting, so adding a member
       without mapping it fails loudly instead of silently selecting stateless.
 
-- [ ] **4. Expose it on `ThargaMcpOptions`**
+- [x] **4. Expose it on `ThargaMcpOptions`** — done. Defaults to `Stateless`.
       `public McpSessionMode SessionMode { get; set; } = McpSessionMode.Stateless;` with XML
       docs pointing at the escape hatch and naming the release that made it necessary.
 
-- [ ] **5. Wire it through `AddThargaMcp`**
+- [x] **5. Wire it through `AddThargaMcp`** — done.
       `WithHttpTransport()` → `WithHttpTransport(o => o.SessionMode = ...)`, with the lambda
       closing over the singleton options instance so the value is read after the host's
       `configure(builder)` callback has run. See the decision in `plan/feature.md` — the
       eager read is the failure mode here.
 
-- [ ] **6. Tests**
+- [x] **6. Tests** — done. 8 new tests in `Transport/SessionModeTests.cs`; 44/44 pass,
+      0 build warnings.
+
+      **Mutation-checked rather than assumed.** The ordering fix was temporarily reverted to
+      the eager read and the suite re-run: 4 tests failed with
+      *"Expected HttpServerSessionMode.StatefulForInitializeClients, but found
+      HttpServerSessionMode.Stateless"*. The tests pin the trap they were written for.
+
+      A seventh angle was added beyond the plan — `Both_enums_declare_the_same_members`
+      compares `Enum.GetNames` on both sides, so an SDK member with no counterpart fails the
+      build. The originally planned mapping test only catches members we add, not members the
+      SDK adds, and the latter is the one that arrives without warning on an upgrade.
+
+
       New `Tharga.Mcp.Tests/Transport/SessionModeTests.cs`:
       - default is stateless when the host sets nothing;
       - a value set inside the `AddThargaMcp` callback reaches the resolved
@@ -65,12 +78,12 @@ Scope: `plan/feature.md`
         `Stateless` bool cannot represent — this is the case that justifies the enum.
       Run the full suite.
 
-- [ ] **7. Bump `MAJOR_MINOR` `1.1` → `1.2`**
+- [x] **7. Bump `MAJOR_MINOR` `1.1` → `1.2`** — done.
       Additive public API, so a minor. `.github/workflows/build.yml`. The tag lookup is
       already guarded with `|| true` from the 1.1 series, so starting `1.2` will not break
       `Compute version`.
 
-- [ ] **8. Docs**
+- [~] **8. Docs** — in progress.
       README section on the option, and a `docs/` article (the site follows one file per
       area — check whether this belongs in the existing `getting-started` /
       `authorization` set or wants its own). Land as a separate `docs:` commit.
