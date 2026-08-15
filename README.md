@@ -44,6 +44,27 @@ Bridge packages add the schemes their own callers use, so a host registering one
 
 An `[Obsolete]` `MapMcp()` alias still works for one release cycle but will be removed — update when you can.
 
+## Session mode
+
+The transport is **stateless** by default, as protocol revision `2026-07-28` requires — no `Mcp-Session-Id` is issued, and the endpoint needs no session affinity. A client that negotiated a session against an earlier revision is refused with `The Mcp-Session-Id header is not supported in stateless mode`.
+
+`ThargaMcpOptions.SessionMode` serves those clients:
+
+```csharp
+builder.Services.AddThargaMcp(mcp =>
+{
+    mcp.Options.SessionMode = McpSessionMode.StatefulForInitializeClients;
+});
+```
+
+| Mode | Legacy clients | `2026-07-28`+ clients | Needs session affinity |
+|---|---|---|---|
+| `Stateless` *(default)* | Rejected | Served | No |
+| `Stateful` | Full session | Forced to downgrade | Yes |
+| `StatefulForInitializeClients` | Full session | Served statelessly | Yes |
+
+Prefer `StatefulForInitializeClients` over `Stateful` when both kinds of client share the endpoint — `Stateful` refuses every modern client with `-32022 UnsupportedProtocolVersion` to accommodate the legacy ones. See [Session mode](https://mcp.tharga.net/articles/session-mode.html).
+
 ## Defining tools
 
 Any class tagged with `[McpServerToolType]` exposing `[McpServerTool]` methods is recognised by the SDK:

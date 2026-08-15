@@ -83,7 +83,16 @@ Scope: `plan/feature.md`
       already guarded with `|| true` from the 1.1 series, so starting `1.2` will not break
       `Compute version`.
 
-- [~] **8. Docs** — in progress.
+- [x] **8. Docs** — done. Both surfaces updated, as the workflow requires when both exist.
+      - **New** `docs/articles/session-mode.md` — the docs follow one file per area and this is
+        a transport concern belonging to neither `authorization` nor `scopes`. Registered in
+        `articles/toc.yml` and `articles/index.md`.
+      - **README** — new "Session mode" section with the mode table.
+      - **Corrected a claim this feature invalidated.** `getting-started.md:63` read *"Legacy
+        stateful behavior is opt-in through the SDK's own transport options"* — precisely the
+        gap PlutusWave filed, stated in the docs as though it were a solution. Rewritten to
+        point at `SessionMode`.
+      - `docs/index.md` "What's in the box" gained a Session mode bullet.
       README section on the option, and a `docs/` article (the site follows one file per
       area — check whether this belongs in the existing `getting-started` /
       `authorization` set or wants its own). Land as a separate `docs:` commit.

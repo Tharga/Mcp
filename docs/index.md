@@ -40,6 +40,7 @@ app.Run();
 - **Provider contracts** — `IMcpToolProvider` and `IMcpResourceProvider` for runtime-discovered tools and resources, alongside the SDK's attribute-based `[McpServerTool]` pattern. See [Defining providers](articles/providers.md).
 - **Scope hierarchy** — `User` < `Team` < `System`. A System caller sees everything; Team sees User + Team; User sees only User. See [Scopes](articles/scopes.md).
 - **Auto-authorization** — `RequireAuth = true` requires an authenticated caller on the mapped endpoint, against the schemes named in `AuthenticationSchemes` (the application's default scheme when none are). See [Authorization](articles/authorization.md).
+- **Session mode** — the transport is stateless by default, as protocol revision `2026-07-28` requires. `SessionMode` keeps serving clients that still expect an `Mcp-Session-Id`. See [Session mode](articles/session-mode.md).
 - **Coexistence with attribute-based tools** — both registration paths work side-by-side in the same server.
 
 ## Repo

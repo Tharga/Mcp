@@ -60,7 +60,7 @@ npx @modelcontextprotocol/inspector
 
 The returned `IEndpointConventionBuilder` can be further chained — `app.UseThargaMcp().RequireAuthorization("SystemApiKeyPolicy")` stacks the policy.
 
-The endpoint is **stateless**: from ModelContextProtocol 2.0.0 the SDK's `HttpServerTransportOptions.Stateless` defaults to `true`, so the server creates no transport session and issues no `Mcp-Session-Id`. Clients that captured that header from an earlier version simply stop receiving one; they need not send it back. Legacy stateful behavior is opt-in through the SDK's own transport options.
+The endpoint is **stateless** by default: from ModelContextProtocol 2.0.0 the SDK creates no transport session and issues no `Mcp-Session-Id`, per protocol revision `2026-07-28`. Clients that captured that header from an earlier version stop receiving one, and a client that keeps sending it is refused. Set `mcp.Options.SessionMode` to serve those clients — see [Session mode](session-mode.md).
 
 ## Adding a provider package
 
@@ -81,3 +81,4 @@ Both attribute-based `[McpServerTool]` tools and contract-based `IMcpToolProvide
 - [Defining providers](providers.md) — when to choose `IMcpToolProvider` over attributes.
 - [Scopes](scopes.md) — how `User` / `Team` / `System` affect what each caller sees.
 - [Authorization](authorization.md) — wiring auth middleware so `RequireAuth` actually enforces.
+- [Session mode](session-mode.md) — serving clients that still expect an `Mcp-Session-Id`.

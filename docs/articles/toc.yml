@@ -8,3 +8,5 @@
   href: scopes.md
 - name: Authorization
   href: authorization.md
+- name: Session mode
+  href: session-mode.md
