@@ -97,8 +97,16 @@ Scope: `plan/feature.md`
       area — check whether this belongs in the existing `getting-started` /
       `authorization` set or wants its own). Land as a separate `docs:` commit.
 
-- [ ] **9. Push and hand over for testing**
-      Push the branch. **Do not open the PR** — the user tests from origin first.
+- [~] **9. Push and hand over for testing**
+      **The user must run the push** — `git push` is in the `deny` list in
+      `~/.claude/settings.json`, so it is blocked for this session rather than merely
+      requiring approval:
+
+          git push -u origin feature/session-mode
+
+      **Do not open the PR** — the user tests from origin first. Implementation is complete
+      and verified locally: 3 commits, build 0 warnings, 44/44 tests, coverage file lands
+      where the Codecov step expects it.
 
 - [ ] **10. Close-out (only after the user confirms)**
       Re-run the outdated check; update `Requests.md` ask 2 to Done with evidence and add the
@@ -116,6 +124,19 @@ a separate feature.
 
 ## Last session
 
-2026-08-15 — Feature opened. Startup sweep done, request selected, API shape and the xunit
-majors confirmed with the user, branch created, plan written. Nothing implemented yet;
-step 1 is next.
+2026-08-15 — **Steps 1–8 complete; implementation is done and verified.** Three commits on
+`feature/session-mode`:
+
+1. `chore(deps):` xunit.v3 4.0.0 + the Microsoft.Testing.Platform migration it forced
+   (`global.json` opt-in, coverage collector swap, CI test command rewrite).
+2. `feat:` `McpSessionMode`, `ThargaMcpOptions.SessionMode`, the mapper, the wiring,
+   8 tests, `MAJOR_MINOR` → `1.2`.
+3. `docs:` README section, new `session-mode.md` article, and the correction to
+   `getting-started.md`.
+
+Build 0 warnings, 44/44 tests pass, and the CI-equivalent coverage command was run locally
+and writes `./coverage/coverage.cobertura.xml` as the Codecov step expects.
+
+**Next:** the user pushes `feature/session-mode` (push is denied to the session) and tests
+from origin. No PR yet, by design. Step 10 close-out waits on the user confirming the
+feature is done.
