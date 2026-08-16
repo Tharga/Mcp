@@ -70,8 +70,8 @@ public class ProviderContractTests
             => Task.FromResult(new McpToolResult { Content = [new McpContent { Text = arguments.GetRawText() }] });
     }
 
-    private sealed record FakeContext(string UserId, string TeamId, McpScope Scope) : IMcpContext
+    private sealed record FakeContext(McpScope Scope) : IMcpContext
     {
-        public static FakeContext System() => new(UserId: "u1", TeamId: null, Scope: McpScope.System);
+        public static FakeContext System() => new(McpScope.System);
     }
 }

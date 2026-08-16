@@ -261,9 +261,5 @@ public class ProviderBridgeTests
         public string Greet([Description("Who to greet.")] string who) => $"Hello, {who}!";
     }
 
-    private sealed record TestContext(McpScope Scope) : IMcpContext
-    {
-        public string UserId => null;
-        public string TeamId => null;
-    }
+    private sealed record TestContext(McpScope Scope) : IMcpContext;
 }

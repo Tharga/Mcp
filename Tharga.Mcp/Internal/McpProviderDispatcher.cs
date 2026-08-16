@@ -106,8 +106,6 @@ internal sealed class McpProviderDispatcher
     private sealed class FallbackContext : IMcpContext
     {
         public static readonly FallbackContext Default = new();
-        public string UserId => null;
-        public string TeamId => null;
         public McpScope Scope => McpScope.System;
     }
 }

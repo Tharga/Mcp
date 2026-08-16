@@ -127,11 +127,31 @@ Scope: `plan/feature.md`
       to the fallback-context description, which said *"all other fields null"* when
       `IsDeveloper` was `true` — understating how open the unbridged fallback is.
 
-      **Consumer breakage to file at close-out:** `Tharga.Team.Mcp` on `origin/master`
-      implements `IMcpContext` (`TeamMcpContext.cs:37`) and gates two resources on the member
-      (`TeamSystemResourceProvider.cs:63`, `:135`). It will not compile against 2.0.0 and needs
-      those gates rewritten. Any change there must start by loading Tharga.Team's own project
-      rules.
+- [x] **12. Reduce `IMcpContext` to `Scope` alone** — done (added to scope 2026-08-16).
+      `UserId` and `TeamId` removed on the user's criterion that the package calls neither
+      getter — verified true. Removed from the interface, `FallbackContext` and the three test
+      fakes; two of those fakes collapsed to `record TestContext(McpScope Scope) : IMcpContext;`.
+      Build 0 warnings, 44/44 pass.
+
+      Two stale docs fixed while in the file, both the same class of defect as `IsDeveloper`'s:
+      - `IMcpProvider.Scope` said *"Only the **matching** endpoint will see its contents"* —
+        the strict-equality behaviour replaced by the hierarchy filter in April 2026.
+      - `IMcpContext`'s summary named `Tharga.Platform.Mcp` as the bridge, which is deprecated
+        and frozen at 3.5.4; the bridge is `Tharga.Team.Mcp`.
+
+      **Consumer breakage to file at close-out — now larger than the `IsDeveloper` break alone.**
+      `Tharga.Team.Mcp` on `origin/master` will not compile against 2.0.0 and loses behaviour in
+      four providers:
+      - `TeamMcpContext.cs:37` implements the removed members.
+      - `TeamSystemResourceProvider.cs:63`, `:135` gate System API Keys and Tenant Roles on
+        `IsDeveloper`.
+      - `TeamResourceProvider.cs:43`, `:80` gate listing and every read on `TeamId`.
+      - `TeamUserResourceProvider.cs:43` gates listing on `UserId`.
+
+      Each needs a replacement source for caller identity. `TeamResourceProvider`'s own remarks
+      at `:93` record the failure mode to avoid: gating listing and reading on different sources
+      advertises a resource the caller cannot read. Any change there must start by loading
+      Tharga.Team's own project rules.
 
 ## Notes
 
@@ -171,3 +191,12 @@ Sequencing was not chosen by the user, so the removal went on this same branch a
 commit. Splitting it into a separate PR is still cheap if wanted — nothing is pushed.
 
 The PR title must name the break, since CI generates release notes from it.
+
+2026-08-16 (later) — **`UserId` and `TeamId` removed too (step 12); `IMcpContext` is now
+`{ Scope }`.** Same criterion, applied by the user: the package calls neither getter, so they
+go. I raised that these differ from `IsDeveloper` — they carry identity nothing else carries,
+and `Tharga.Team.Mcp` uses `TeamId` as the server-issued value that stops a team read crossing
+tenants — and the user confirmed removal anyway. Recorded in `feature.md` under scope.
+
+The Team-side follow-up is now four providers rather than one. It is the single most important
+thing to file at close-out.

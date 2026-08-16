@@ -55,8 +55,28 @@ rather than deprecated.
   change there, not just a deleted property.
 - **The filed request's claim that Tharga.Team no longer depends on it is stale**, and the
   record is corrected at close-out along with a new request filed against Tharga.Team.
-- `UserId` and `TeamId` stay. The foundation does not read them either, but they are identity
-  *data* the context exists to carry to providers, not a duplicated authorization verdict.
+**Added to scope 2026-08-16 — `UserId` and `TeamId` removed as well.**
+
+The user set an explicit criterion: *"Is any property in the Mcp package using the get-property
+for TeamId and UserId? If not, then it should be removed."* Verified — no. The only occurrences
+in the package were the two declarations and the two `FallbackContext` implementations
+returning `null`. No read site; only `Scope`'s getter is ever called, at
+`McpProviderDispatcher.cs:101`.
+
+`IMcpContext` is therefore reduced to `{ McpScope Scope }`.
+
+**Concern raised and overruled, recorded here because it will surface later.** Unlike
+`IsDeveloper` — which was redundant against `Scope` — these carried information nothing else
+on the contract carries. `Tharga.Team.Mcp` reads them as its team/user authorization input:
+`TeamResourceProvider.cs:43` gates listing on `TeamId`, `:80` performs every read by it, and the
+remarks at `:99` state it is safe *only* because the value comes from a server-issued claim and
+never from the request. `TeamUserResourceProvider.cs:43` gates on `UserId`. Those providers now
+have to source identity themselves, and their own remarks at `:93` document a bug from doing
+exactly that — listing gated on the claim while reading gated on membership, so an API key was
+advertised a resource it could not then read.
+
+The user was told this twice and chose removal both times. Filing the Team-side work is part of
+close-out.
 
 ## Decisions
 
@@ -98,8 +118,8 @@ change and gets a test of its own.
       `2026-07-28`+ requests with `-32022 UnsupportedProtocolVersion` and forces a downgrade.
 - [ ] `MAJOR_MINOR` moved `1.1` → `2.0` — additive on its own, but the `IsDeveloper` removal
       added to scope is a public-interface break, so it ships as a major.
-- [ ] `IMcpContext.IsDeveloper` is gone, with no member left naming a host-configurable role,
-      and `docs/articles/providers.md` records the removal and what to gate on instead.
+- [ ] `IMcpContext` declares `Scope` only — `IsDeveloper`, `UserId` and `TeamId` all removed —
+      and `docs/articles/providers.md` records the break and what a provider must do instead.
 
 ## Done condition
 
