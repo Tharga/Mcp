@@ -78,7 +78,8 @@ Scope: `plan/feature.md`
         `Stateless` bool cannot represent — this is the case that justifies the enum.
       Run the full suite.
 
-- [x] **7. Bump `MAJOR_MINOR` `1.1` → `1.2`** — done.
+- [x] **7. Bump `MAJOR_MINOR`** — done. Set to `1.2` for the additive option, then moved to
+      `2.0` when the `IsDeveloper` removal was added to scope (step 11).
       Additive public API, so a minor. `.github/workflows/build.yml`. The tag lookup is
       already guarded with `|| true` from the 1.1 series, so starting `1.2` will not break
       `Compute version`.
@@ -115,12 +116,29 @@ Scope: `plan/feature.md`
       ModelContextProtocol 2.0.0 upgrade); archive `plan/feature.md` to the Plan directory
       `done/`; `git rm -r plan`; final commit `feat: session mode complete`; open the PR.
 
+- [x] **11. Remove `IMcpContext.IsDeveloper`** — done (added to scope 2026-08-16).
+      Removed from the interface, from `FallbackContext`, and from the three test fakes.
+      `Scope`'s XML doc now states that it is *the* authorization signal on the context, which
+      is what `IsDeveloper`'s doc wrongly claimed for itself. Build 0 warnings, 44/44 pass —
+      no test needed changing beyond dropping the member, which is itself the evidence that
+      nothing in this package depended on it.
+      `docs/articles/providers.md` updated: the interface snippet, a note on what `UserId` /
+      `TeamId` are for versus what `Scope` is for, a 2.0.0 removal callout, and a correction
+      to the fallback-context description, which said *"all other fields null"* when
+      `IsDeveloper` was `true` — understating how open the unbridged fallback is.
+
+      **Consumer breakage to file at close-out:** `Tharga.Team.Mcp` on `origin/master`
+      implements `IMcpContext` (`TeamMcpContext.cs:37`) and gates two resources on the member
+      (`TeamSystemResourceProvider.cs:63`, `:135`). It will not compile against 2.0.0 and needs
+      those gates rewritten. Any change there must start by loading Tharga.Team's own project
+      rules.
+
 ## Notes
 
 Startup sweep (2026-08-15): working tree clean, `master` level with origin, no open GitHub
-issues on `Tharga/Mcp`, no open upstream requests. Two pending requests exist for this repo —
-this one, and `IMcpContext.IsDeveloper` under `## Tharga.Mcp`, which is deliberately left for
-a separate feature.
+issues on `Tharga/Mcp`, no open upstream requests. Two pending requests existed for this repo
+and this branch now satisfies **both** — the session-mode ask under `## Tharga.Team — MCP`
+(ask 2) and `IMcpContext.IsDeveloper` under `## Tharga.Mcp`.
 
 ## Last session
 
@@ -140,3 +158,16 @@ and writes `./coverage/coverage.cobertura.xml` as the Codecov step expects.
 **Next:** the user pushes `feature/session-mode` (push is denied to the session) and tests
 from origin. No PR yet, by design. Step 10 close-out waits on the user confirming the
 feature is done.
+
+2026-08-16 — **Scope grew: `IMcpContext.IsDeveloper` removed (step 11).** The user asked what
+the member did, and on being told the package never reads it, decided to remove it. The
+release is now **2.0.0** rather than 1.2.0, because removing an interface member breaks every
+implementer.
+
+I raised that `Tharga.Team.Mcp` still gates on it and would break; the user reaffirmed the
+removal, so it proceeded. Filing the Team-side work is now part of close-out.
+
+Sequencing was not chosen by the user, so the removal went on this same branch as its own
+commit. Splitting it into a separate PR is still cheap if wanted — nothing is pushed.
+
+The PR title must name the break, since CI generates release notes from it.

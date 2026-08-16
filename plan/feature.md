@@ -40,8 +40,23 @@ at once when 0.1.27 reached production, and had no option to turn it back on.
 - `EnableLegacySse`, `IdleTimeout`, `EventStreamStore` and the rest of
   `HttpServerTransportOptions`. No consumer has asked, and exposing the whole surface would
   make `ThargaMcpOptions` a second copy of the SDK's options class.
-- The `IMcpContext.IsDeveloper` request (`## Tharga.Mcp`, Pending) — a separate ask, left
-  alone.
+**Added to scope 2026-08-16 — `IMcpContext.IsDeveloper` removed.**
+
+Originally out of scope as a separate ask. The user asked what the member did, and the answer
+("nothing — the package never reads it") led them to decide it should go. Removed outright
+rather than deprecated.
+
+- **This makes the release 2.0.0, not 1.2.0.** Removing a member from a public interface is a
+  compile break for every implementer.
+- **`Tharga.Team.Mcp` is an implementer and will break.** Verified against `Tharga/Team`
+  `origin/master`, not assumed: `TeamMcpContext.cs:37` computes it from the configurable
+  `developerRole`, and `TeamSystemResourceProvider.cs:63` and `:135` gate the System API Keys
+  and Tenant Roles resources on it. Those two gates need a replacement — this is a behaviour
+  change there, not just a deleted property.
+- **The filed request's claim that Tharga.Team no longer depends on it is stale**, and the
+  record is corrected at close-out along with a new request filed against Tharga.Team.
+- `UserId` and `TeamId` stay. The foundation does not read them either, but they are identity
+  *data* the context exists to carry to providers, not a duplicated authorization verdict.
 
 ## Decisions
 
@@ -81,8 +96,10 @@ change and gets a test of its own.
 - [ ] Build has 0 warnings and the full test suite passes.
 - [ ] README and `docs/` document the option, including that `Stateful` refuses
       `2026-07-28`+ requests with `-32022 UnsupportedProtocolVersion` and forces a downgrade.
-- [ ] `MAJOR_MINOR` moved `1.1` → `1.2` — this is an additive public-API change, so it ships
-      as a minor, per the standing rule this package now follows.
+- [ ] `MAJOR_MINOR` moved `1.1` → `2.0` — additive on its own, but the `IsDeveloper` removal
+      added to scope is a public-interface break, so it ships as a major.
+- [ ] `IMcpContext.IsDeveloper` is gone, with no member left naming a host-configurable role,
+      and `docs/articles/providers.md` records the removal and what to gate on instead.
 
 ## Done condition
 

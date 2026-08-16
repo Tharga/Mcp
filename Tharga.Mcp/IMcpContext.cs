@@ -12,9 +12,9 @@ public interface IMcpContext
     /// <summary>The active team for this call, or <c>null</c> when the scope is not team-bound.</summary>
     string TeamId { get; }
 
-    /// <summary>True when the caller has the Developer role. Required for the <see cref="McpScope.System"/> endpoint.</summary>
-    bool IsDeveloper { get; }
-
-    /// <summary>The endpoint scope that served this call.</summary>
+    /// <summary>
+    /// The endpoint scope that served this call. This is the authorization signal on the context —
+    /// the dispatcher shows a provider only when its <see cref="IMcpProvider.Scope"/> is at or below this value.
+    /// </summary>
     McpScope Scope { get; }
 }

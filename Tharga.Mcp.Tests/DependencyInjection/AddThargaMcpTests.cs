@@ -106,6 +106,5 @@ public class AddThargaMcpTests
     {
         public string UserId => null;
         public string TeamId => null;
-        public bool IsDeveloper => false;
     }
 }

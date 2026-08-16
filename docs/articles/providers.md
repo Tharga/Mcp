@@ -92,19 +92,22 @@ The dispatcher fills `McpServerOptions.Handlers.{ListTools,CallTool,ListResource
 
 ## The `IMcpContext` parameter
 
-Every provider method receives an `IMcpContext`. Phase 0 contains four fields:
+Every provider method receives an `IMcpContext`:
 
 ```csharp
 public interface IMcpContext
 {
     string UserId { get; }
     string TeamId { get; }
-    bool IsDeveloper { get; }
     McpScope Scope { get; }
 }
 ```
 
-In a `Tharga.Mcp`-only host (no Platform bridge), `Current` is `null` and providers receive a fallback context (`Scope = System`, all other fields null). When `Tharga.Platform.Mcp` is in the pipeline, `Current` is populated per-request from the authenticated principal.
+`UserId` and `TeamId` are identity data for the provider to use — the foundation itself never reads them. `Scope` is the authorization signal, and the only member the dispatcher consults.
+
+In a `Tharga.Mcp`-only host (no bridge package), `Current` is `null` and providers receive a fallback context with `Scope = System` and `UserId` / `TeamId` null. Note what that means: with no bridge, scope filtering is skipped entirely and **every** provider is visible. Wiring a bridge (`Tharga.Team.Mcp`) is what populates `Current` per-request from the authenticated principal and turns the filter on.
+
+> **Removed in 2.0.0:** `bool IsDeveloper`. It named a role the host configures and could rename, nothing in this package read it, and its documentation wrongly claimed it gated the `System` endpoint — `Scope` does, via the hierarchy filter. Gate on `Scope` instead, or on your own bridge's scope check.
 
 ## Choosing between attributes and providers
 
