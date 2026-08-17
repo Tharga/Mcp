@@ -69,7 +69,7 @@ public sealed class GreetingResourceProvider : IMcpResourceProvider
         => Task.FromResult(new McpResourceContent
         {
             Uri = uri,
-            Text = $"hello {context.UserId ?? "anonymous"}",
+            Text = $"hello, caller at {context.Scope} scope",
         });
 }
 
@@ -92,19 +92,24 @@ The dispatcher fills `McpServerOptions.Handlers.{ListTools,CallTool,ListResource
 
 ## The `IMcpContext` parameter
 
-Every provider method receives an `IMcpContext`. Phase 0 contains four fields:
+Every provider method receives an `IMcpContext`, which carries the caller's privilege level and nothing else:
 
 ```csharp
 public interface IMcpContext
 {
-    string UserId { get; }
-    string TeamId { get; }
-    bool IsDeveloper { get; }
     McpScope Scope { get; }
 }
 ```
 
-In a `Tharga.Mcp`-only host (no Platform bridge), `Current` is `null` and providers receive a fallback context (`Scope = System`, all other fields null). When `Tharga.Platform.Mcp` is in the pipeline, `Current` is populated per-request from the authenticated principal.
+`Scope` is the authorization signal and the only member the dispatcher consults — see the hierarchy filter in [Scopes](scopes.md).
+
+In a `Tharga.Mcp`-only host (no bridge package), `Current` is `null` and providers receive a fallback context with `Scope = System`. Note what that means: with no bridge, scope filtering is skipped entirely and **every** provider is visible. Wiring a bridge (`Tharga.Team.Mcp`) is what populates `Current` per-request from the authenticated principal and turns the filter on.
+
+> **Breaking in 2.0.0 — `IMcpContext` is reduced to `Scope` alone.** `IsDeveloper`, `UserId` and `TeamId` were all removed: nothing in `Tharga.Mcp` ever read them, so the contract was declaring members it did not use.
+>
+> `IsDeveloper` additionally named a role the host configures and could rename, and its documentation wrongly claimed it gated the `System` endpoint — `Scope` does, via the hierarchy filter.
+>
+> **A provider that needs caller identity must now source it itself**, e.g. from `IHttpContextAccessor` on the authenticated principal. Do this consistently across listing and reading: gating a list on one source and the corresponding read on another is a known way to advertise a resource the caller then cannot read.
 
 ## Choosing between attributes and providers
 

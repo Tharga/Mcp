@@ -102,10 +102,5 @@ public class AddThargaMcpTests
             => Task.FromResult(new McpResourceContent { Uri = uri });
     }
 
-    private sealed record TestContext(McpScope Scope) : IMcpContext
-    {
-        public string UserId => null;
-        public string TeamId => null;
-        public bool IsDeveloper => false;
-    }
+    private sealed record TestContext(McpScope Scope) : IMcpContext;
 }

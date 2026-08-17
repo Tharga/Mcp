@@ -4,13 +4,13 @@ _layout: landing
 
 # Tharga.Mcp
 
-Foundation package for [MCP (Model Context Protocol)](https://modelcontextprotocol.io/) infrastructure in the Tharga ecosystem. Wraps the official [`ModelContextProtocol`](https://www.nuget.org/packages/ModelContextProtocol) C# SDK with a Tharga-flavored registration pattern so downstream provider packages (`Tharga.MongoDB.Mcp`, `Tharga.Platform.Mcp`, etc.) compose cleanly inside a single `AddThargaMcp(...)` callback. Built for **.NET 10**.
+Foundation package for [MCP (Model Context Protocol)](https://modelcontextprotocol.io/) infrastructure in the Tharga ecosystem. Wraps the official [`ModelContextProtocol`](https://www.nuget.org/packages/ModelContextProtocol) C# SDK with a Tharga-flavored registration pattern so downstream provider packages (`Tharga.Team.Mcp`, `Tharga.MongoDB.Mcp`, etc.) compose cleanly inside a single `AddThargaMcp(...)` callback. Built for **.NET 10**.
 
 ## Package
 
 | Package | What it does |
 |---|---|
-| [Tharga.Mcp](https://www.nuget.org/packages/Tharga.Mcp) | Contracts (`IMcpToolProvider`, `IMcpResourceProvider`, `IMcpContext`, `McpScope`), the `IThargaMcpBuilder` registration pattern, and `UseThargaMcp()` endpoint mapping. No Tharga dependencies — auth/scopes/audit integration lives in `Tharga.Platform.Mcp`. |
+| [Tharga.Mcp](https://www.nuget.org/packages/Tharga.Mcp) | Contracts (`IMcpToolProvider`, `IMcpResourceProvider`, `IMcpContext`, `McpScope`), the `IThargaMcpBuilder` registration pattern, and `UseThargaMcp()` endpoint mapping. No Tharga dependencies — auth/scopes/audit integration lives in `Tharga.Team.Mcp`. |
 
 ## Quick start
 
@@ -40,6 +40,7 @@ app.Run();
 - **Provider contracts** — `IMcpToolProvider` and `IMcpResourceProvider` for runtime-discovered tools and resources, alongside the SDK's attribute-based `[McpServerTool]` pattern. See [Defining providers](articles/providers.md).
 - **Scope hierarchy** — `User` < `Team` < `System`. A System caller sees everything; Team sees User + Team; User sees only User. See [Scopes](articles/scopes.md).
 - **Auto-authorization** — `RequireAuth = true` requires an authenticated caller on the mapped endpoint, against the schemes named in `AuthenticationSchemes` (the application's default scheme when none are). See [Authorization](articles/authorization.md).
+- **Session mode** — the transport is stateless by default, as protocol revision `2026-07-28` requires. `SessionMode` keeps serving clients that still expect an `Mcp-Session-Id`. See [Session mode](articles/session-mode.md).
 - **Coexistence with attribute-based tools** — both registration paths work side-by-side in the same server.
 
 ## Repo

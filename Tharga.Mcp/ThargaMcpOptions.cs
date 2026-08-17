@@ -36,4 +36,28 @@ public sealed class ThargaMcpOptions
     /// </para>
     /// </remarks>
     public IList<string> AuthenticationSchemes { get; } = [];
+
+    /// <summary>
+    /// How the HTTP transport tracks state between requests. Defaults to
+    /// <see cref="McpSessionMode.Stateless"/>, which is what the protocol requires from revision
+    /// <c>2026-07-28</c> onward.
+    /// </summary>
+    /// <remarks>
+    /// Set this only to keep clients working that were written against an older revision. Those clients
+    /// negotiated an <c>Mcp-Session-Id</c>, which SEP-2567 removed from the protocol; against a stateless
+    /// server their next call fails with <i>"The Mcp-Session-Id header is not supported in stateless
+    /// mode"</i>, which reads as a server misconfiguration rather than as a protocol revision changing
+    /// underneath them.
+    /// <para>
+    /// Prefer <see cref="McpSessionMode.StatefulForInitializeClients"/> over
+    /// <see cref="McpSessionMode.Stateful"/> when both old and new clients call the same endpoint —
+    /// <see cref="McpSessionMode.Stateful"/> forces a downgrade on every modern client to accommodate the
+    /// legacy ones.
+    /// </para>
+    /// <para>
+    /// Stateless is the better default and worth returning to: it needs no session affinity, so the
+    /// endpoint can sit behind more than one instance.
+    /// </para>
+    /// </remarks>
+    public McpSessionMode SessionMode { get; set; } = McpSessionMode.Stateless;
 }

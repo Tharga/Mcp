@@ -1,6 +1,6 @@
 # Mission: Tharga.Mcp
 
-Foundation package for MCP (Model Context Protocol) infrastructure in the Tharga ecosystem. Provides transport, contracts (`IMcpResourceProvider`, `IMcpToolProvider`), three-level access (`/mcp/me`, `/mcp/team`, `/mcp/system`), and the `IThargaMcpBuilder` registration pattern. No dependency on other Tharga packages — apps use `Tharga.Platform.Mcp` to bridge auth/scopes/audit.
+Foundation package for MCP (Model Context Protocol) infrastructure in the Tharga ecosystem. Provides transport, contracts (`IMcpResourceProvider`, `IMcpToolProvider`), three-level access (`/mcp/me`, `/mcp/team`, `/mcp/system`), and the `IThargaMcpBuilder` registration pattern. No dependency on other Tharga packages — apps use `Tharga.Team.Mcp` to bridge auth/scopes/audit.
 
 - **Type**: Tool
 - **CI**: GitHub Actions

@@ -1,8 +1,8 @@
 # Tharga.Mcp
 
-Foundation package for [MCP (Model Context Protocol)](https://modelcontextprotocol.io/) infrastructure in the Tharga ecosystem. Wraps the official [ModelContextProtocol](https://www.nuget.org/packages/ModelContextProtocol) C# SDK with a Tharga-flavored registration pattern so downstream provider packages (`Tharga.MongoDB.Mcp`, `Tharga.Platform.Mcp`, etc.) compose cleanly inside a single `AddThargaMcp(...)` callback.
+Foundation package for [MCP (Model Context Protocol)](https://modelcontextprotocol.io/) infrastructure in the Tharga ecosystem. Wraps the official [ModelContextProtocol](https://www.nuget.org/packages/ModelContextProtocol) C# SDK with a Tharga-flavored registration pattern so downstream provider packages (`Tharga.Team.Mcp`, `Tharga.MongoDB.Mcp`, etc.) compose cleanly inside a single `AddThargaMcp(...)` callback.
 
-`Tharga.Mcp` itself has **no dependency on any other Tharga package** — the auth/scope/audit integration lives in `Tharga.Platform.Mcp` (Phase 1).
+`Tharga.Mcp` itself has **no dependency on any other Tharga package** — the auth/scope/audit integration lives in `Tharga.Team.Mcp`.
 
 **Docs:** [mcp.tharga.net](https://mcp.tharga.net) — guides, API reference, and the provider/scope/auth walkthroughs.
 
@@ -43,6 +43,27 @@ builder.Services.AddThargaMcp(mcp =>
 Bridge packages add the schemes their own callers use, so a host registering one usually needs nothing here. See [Authorization](https://mcp.tharga.net/articles/authorization.html).
 
 An `[Obsolete]` `MapMcp()` alias still works for one release cycle but will be removed — update when you can.
+
+## Session mode
+
+The transport is **stateless** by default, as protocol revision `2026-07-28` requires — no `Mcp-Session-Id` is issued, and the endpoint needs no session affinity. A client that negotiated a session against an earlier revision is refused with `The Mcp-Session-Id header is not supported in stateless mode`.
+
+`ThargaMcpOptions.SessionMode` serves those clients:
+
+```csharp
+builder.Services.AddThargaMcp(mcp =>
+{
+    mcp.Options.SessionMode = McpSessionMode.StatefulForInitializeClients;
+});
+```
+
+| Mode | Legacy clients | `2026-07-28`+ clients | Needs session affinity |
+|---|---|---|---|
+| `Stateless` *(default)* | Rejected | Served | No |
+| `Stateful` | Full session | Forced to downgrade | Yes |
+| `StatefulForInitializeClients` | Full session | Served statelessly | Yes |
+
+Prefer `StatefulForInitializeClients` over `Stateful` when both kinds of client share the endpoint — `Stateful` refuses every modern client with `-32022 UnsupportedProtocolVersion` to accommodate the legacy ones. See [Session mode](https://mcp.tharga.net/articles/session-mode.html).
 
 ## Defining tools
 
@@ -90,16 +111,16 @@ Provider packages expose an extension method on `IThargaMcpBuilder` so consumers
 builder.Services.AddThargaMcp(mcp =>
 {
     mcp.AddMongoDB();   // from Tharga.MongoDB.Mcp
-    mcp.AddPlatform();  // from Tharga.Platform.Mcp
+    mcp.AddTeam();      // from Tharga.Team.Mcp
     mcp.AddToolProvider<MyCustomProvider>();
 });
 ```
 
-The two paths (attribute-based `[McpServerTool]` and contract-based `IMcpToolProvider`) work **side by side** — use attributes for statically-declared tools, providers for dynamic or programmatically-generated tools. Scope filtering (`/mcp/me`, `/mcp/team`, `/mcp/system`) activates in Phase 1 once `Tharga.Platform.Mcp` populates `IMcpContextAccessor.Current` from the authenticated request.
+The two paths (attribute-based `[McpServerTool]` and contract-based `IMcpToolProvider`) work **side by side** — use attributes for statically-declared tools, providers for dynamic or programmatically-generated tools. Scope filtering activates once something populates `IMcpContextAccessor.Current` from the authenticated request — `Tharga.Team.Mcp` does, or you can register your own accessor.
 
 ## Endpoint scopes
 
-The master plan defines three scopes — `User` (`/mcp/me`), `Team` (`/mcp/team`), `System` (`/mcp/system`). **Phase 0 ships a single endpoint** (`/mcp`) that exposes registered tools and resources filtered by a **scope hierarchy**: a caller at `System` sees User + Team + System providers; `Team` sees User + Team; `User` sees only User. The caller's effective scope is read from `IMcpContextAccessor.Current` (populated by `Tharga.Platform.Mcp` from the authenticated principal, or left anonymous in Phase 0). When no context is populated, every provider is visible. The three-endpoint split is deferred — see the master plan decision 2026-04-18.
+The master plan defines three scopes — `User` (`/mcp/me`), `Team` (`/mcp/team`), `System` (`/mcp/system`). **Phase 0 ships a single endpoint** (`/mcp`) that exposes registered tools and resources filtered by a **scope hierarchy**: a caller at `System` sees User + Team + System providers; `Team` sees User + Team; `User` sees only User. The caller's effective scope is read from `IMcpContextAccessor.Current`, which `Tharga.Team.Mcp` derives from the authenticated principal. **When no context is populated, every provider is visible** — so until a bridge or your own `IMcpContextAccessor` is registered, a provider's declared scope hides it from nobody. The three-endpoint split is deferred — see the master plan decision 2026-04-18.
 
 ## Sample
 

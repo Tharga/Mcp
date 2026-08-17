@@ -27,7 +27,9 @@ public static class ThargaMcpServiceCollectionExtensions
         services.TryAddSingleton<McpProviderDispatcher>();
         services.TryAddEnumerable(ServiceDescriptor.Singleton<IConfigureOptions<McpServerOptions>, ConfigureMcpHandlers>());
 
-        services.AddMcpServer().WithHttpTransport();
+        // Read inside the callback, not here: configure(builder) runs after this line, so an eager
+        // read would always see the default and silently discard whatever the host set.
+        services.AddMcpServer().WithHttpTransport(transport => transport.SessionMode = McpTypeMappers.ToSdkSessionMode(options.SessionMode));
 
         var builder = new ThargaMcpBuilder(services, options, registry);
         configure(builder);
