@@ -11,4 +11,3 @@ Foundation package for MCP (Model Context Protocol) infrastructure in the Tharga
 - **Plan directory**: `$DOC_ROOT/Tharga/plans/Mcp` — feature archive lives alongside the master plan
 - **Backlog**: `$DOC_ROOT/Tharga/Toolkit/Mcp.md`
 - **Incoming requests**: `$DOC_ROOT/Tharga/Requests.md` — check sections "Tharga.Mcp" on startup
-- **Eplicta requests**: `$DEV_ROOT/Eplicta/plan/requests.md` — check for requests from Eplicta on startup
