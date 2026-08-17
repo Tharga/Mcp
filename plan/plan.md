@@ -211,9 +211,22 @@ I raised that `Tharga.Team.Mcp` still gates on it and would break; the user reaf
 removal, so it proceeded. Filing the Team-side work is now part of close-out.
 
 Sequencing was not chosen by the user, so the removal went on this same branch as its own
-commit. Splitting it into a separate PR is still cheap if wanted — nothing is pushed.
+commit.
 
-The PR title must name the break, since CI generates release notes from it.
+**2026-08-17 — decided: one PR. Do not split.** The option to move the breaking removals onto
+their own branch was offered (the cost being that the session-mode fix PlutusWave is waiting on
+ships behind them) and the user chose to keep everything in this PR as a single 2.0.0. Settled;
+do not re-raise.
+
+**The PR title must name the break** — CI runs `gh release create --generate-notes`, so PR
+titles *are* the published release notes, and a consumer running `dotnet outdated -u` reads
+them to decide. Proposed:
+
+    feat!: SessionMode option, and IMcpContext reduced to Scope — ships as 2.0.0
+
+This follows the 1.1.0 precedent (*"…ships as 1.1.0, not a patch"*), which exists because a
+transitive SDK major once arrived under a patch number. The body should name the three removed
+members and point at the Tharga.Team.Mcp follow-up.
 
 2026-08-16 (later) — **`UserId` and `TeamId` removed too (step 12); `IMcpContext` is now
 `{ Scope }`.** Same criterion, applied by the user: the package calls neither getter, so they
