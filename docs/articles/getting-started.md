@@ -64,12 +64,12 @@ The endpoint is **stateless** by default: from ModelContextProtocol 2.0.0 the SD
 
 ## Adding a provider package
 
-Provider packages (`Tharga.MongoDB.Mcp`, `Tharga.Platform.Mcp`, etc.) expose extension methods on `IThargaMcpBuilder`:
+Provider packages (`Tharga.Team.Mcp`, `Tharga.MongoDB.Mcp`, etc.) expose extension methods on `IThargaMcpBuilder`:
 
 ```csharp
 builder.Services.AddThargaMcp(mcp =>
 {
-    mcp.AddPlatform();   // from Tharga.Platform.Mcp — wires Platform auth/scopes/audit
+    mcp.AddTeam();       // from Tharga.Team.Mcp — wires auth/scopes/audit
     mcp.AddMongoDB();    // from Tharga.MongoDB.Mcp — MongoDB monitoring/admin
 });
 ```

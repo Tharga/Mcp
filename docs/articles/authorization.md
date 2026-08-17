@@ -105,29 +105,31 @@ ASP.NET Core does this intentionally — better a loud runtime exception than si
    });
    ```
 
-The Tharga.Mcp sample uses path #2 with an explanatory comment, since it's a no-auth demo. Production consumers — especially Tharga.Platform.Mcp users — keep the `true` default.
+The Tharga.Mcp sample uses path #2 with an explanatory comment, since it's a no-auth demo. Production consumers — especially `Tharga.Team.Mcp` users — keep the `true` default.
 
-## With Tharga.Platform.Mcp
+## With Tharga.Team.Mcp
 
-`Tharga.Platform.Mcp`'s `AddPlatform()` extension wires `AddAuthentication`, `AddAuthorization`, the API-key + OIDC schemes, and an `IMcpContextAccessor` implementation that populates `Current` from `HttpContext.User`. All you have to do as a consumer is:
+`Tharga.Team.Mcp`'s `AddTeam()` extension wires `AddAuthentication`, `AddAuthorization`, the API-key + OIDC schemes, and an `IMcpContextAccessor` implementation that derives `Current` from `HttpContext.User`. All you have to do as a consumer is:
 
 ```csharp
 builder.Services.AddThargaMcp(mcp =>
 {
-    mcp.AddPlatform();
+    mcp.AddTeam();
 });
 
 var app = builder.Build();
 app.UseAuthentication();
 app.UseAuthorization();
-app.UseThargaMcp();  // RequireAuth is true by default — Platform.Mcp wires the middleware
+app.UseThargaMcp();  // RequireAuth is true by default — AddTeam contributes the schemes
 ```
 
 That gives you:
 
 - Auth enforced on `/mcp`, against whichever schemes the bridge contributed (the default scheme when it contributed none).
 - `IMcpContext` populated per-request from claims (see [Scopes](scopes.md) for how claims map to `McpScope`).
-- Audit hooks via Tharga.Platform's `CompositeAuditLogger`.
+- Audit hooks via Tharga.Team's `CompositeAuditLogger`.
+
+> `Tharga.Platform.Mcp` was the earlier name for this bridge and is deprecated, frozen at 3.5.4. `mcp.AddPlatform()` is superseded by `mcp.AddTeam()`.
 
 ## Test pattern
 

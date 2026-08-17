@@ -35,20 +35,20 @@ A provider that conceptually spans multiple scopes ships as multiple classes —
 
 The dispatcher reads `IMcpContextAccessor.Current.Scope`. Two paths populate it:
 
-- **`Tharga.Platform.Mcp`** — installs a middleware that reads `HttpContext.User` and maps claims to a scope:
+- **`Tharga.Team.Mcp`** — replaces `IMcpContextAccessor` with one that derives the context from `HttpContext.User` per request:
   - `Developer` role or `IsSystemKey=true` claim → `System`
-  - non-empty `TeamKey` claim → `Team`
+  - non-empty `TeamKey` claim, or a team named on the call → `Team`
   - otherwise → `User`
 - **Custom** — you can register your own `IMcpContextAccessor` implementation if you have a different identity model. The dispatcher only requires that `Current` be populated before it runs.
 
 ## Anonymous behavior
 
-When `IMcpContextAccessor.Current` is `null` — typical for a Tharga.Mcp host without the Platform bridge — the dispatcher **skips scope filtering entirely**: every registered provider is visible. Two reasons:
+When `IMcpContextAccessor.Current` is `null` — the default for a `Tharga.Mcp` host with no bridge package — the dispatcher **skips scope filtering entirely**: every registered provider is visible. Two reasons:
 
 1. **Phase 0 ergonomics** — a sample host without auth shouldn't return an empty `tools/list`. The "show everything" fallback keeps the demo path usable.
 2. **No false sense of security** — relying on a hierarchy filter alone for auth would be wrong anyway. Auth lives one layer up: `RequireAuth = true` + the `Authorize` attribute control *whether* a request reaches the dispatcher; the hierarchy decides *what* an authorized caller sees.
 
-In production hosts with `Tharga.Platform.Mcp` wired up, `Current` is populated on every authenticated request — the null path is effectively dead code.
+In a host with `Tharga.Team.Mcp` wired up, `Current` is populated on every authenticated request, so the null path is not reached. Note the corollary: until you wire a bridge or your own accessor, the `McpScope` on each provider is decorative — declaring a provider `System` does not hide it from anyone.
 
 ## Why hierarchy and not strict equality
 
@@ -62,4 +62,4 @@ An earlier version of the dispatcher filtered with `provider.Scope == caller.Sco
 - `Team_scope_caller_sees_user_and_team_providers_but_not_system`
 - `System_scope_caller_sees_providers_from_all_scopes`
 
-Each test uses a middleware that sets `accessor.Current` to a fake context — the same pattern `Tharga.Platform.Mcp` uses in production.
+Each test uses a middleware that sets `accessor.Current` to a fake context — the same seam `Tharga.Team.Mcp` fills in production.

@@ -153,6 +153,29 @@ Scope: `plan/feature.md`
       advertises a resource the caller cannot read. Any change there must start by loading
       Tharga.Team's own project rules.
 
+- [x] **13. Sweep stale `Tharga.Platform.Mcp` references and tidy `FallbackContext`** — done
+      (2026-08-17). The bridge was renamed to `Tharga.Team.Mcp` (Platform.Mcp deprecated, frozen
+      at 3.5.4, `mcp.AddPlatform()` superseded by `mcp.AddTeam()`), but this repo still named the
+      old one in **11 places** across source, docs, README and `.claude/mission.md`. Verified the
+      replacement against `McpTeamBuilderExtensions.cs:20` rather than assuming the method name.
+
+      One deliberate mention kept: a deprecation note in `authorization.md` so a reader arriving
+      with `AddPlatform()` in their code finds out what replaced it.
+
+      Two substantive corrections landed with the rename rather than just a find-and-replace:
+      - **The "Phase 1" framing was wrong, not just dated.** README and `scopes.md` said scope
+        filtering *"activates in Phase 1"*, as though it were pending. It is active now; what is
+        missing without a bridge is any *context*, and the dispatcher's response to that is to
+        show everything.
+      - **Said plainly what that means**, in README, `scopes.md` and `IMcpContextAccessor`:
+        until a bridge or a custom accessor is registered, a provider's declared `McpScope`
+        hides it from nobody. The old wording let "Phase 0 default" read as safe.
+
+      `FallbackContext` collapsed to a record with a static `Default`, and gained a remark
+      explaining why its scope is `System` — it has to agree with the unfiltered provider list
+      above it, or a provider gating on `context.Scope` would hide contents the dispatcher is
+      advertising.
+
 ## Notes
 
 Startup sweep (2026-08-15): working tree clean, `master` level with origin, no open GitHub
