@@ -69,7 +69,7 @@ public sealed class GreetingResourceProvider : IMcpResourceProvider
         => Task.FromResult(new McpResourceContent
         {
             Uri = uri,
-            Text = $"hello {context.UserId ?? "anonymous"}",
+            Text = $"hello, caller at {context.Scope} scope",
         });
 }
 
