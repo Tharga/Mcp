@@ -190,11 +190,21 @@ jobs:
           echo "version=$VERSION" >> "$GITHUB_OUTPUT"
           echo "previous_tag=$LATEST_TAG" >> "$GITHUB_OUTPUT"
 
+      - name: Log in to NuGet (Trusted Publishing)
+        id: nuget-login
+        if: vars.NUGET_USER != ''
+        uses: NuGet/login@v1
+        with:
+          user: ${{ vars.NUGET_USER }}
+
       - name: Push to NuGet
+        env:
+          # The short-lived key from Trusted Publishing when it is set up, otherwise the stored key.
+          NUGET_API_KEY: ${{ steps.nuget-login.outputs.NUGET_API_KEY || secrets.NUGET_API_KEY }}
         run: |
           for pkg in ./artifacts/*.nupkg; do
             echo "Pushing $pkg..."
-            dotnet nuget push "$pkg" --api-key ${{ secrets.NUGET_API_KEY }} --source https://api.nuget.org/v3/index.json --skip-duplicate || true
+            dotnet nuget push "$pkg" --api-key "$NUGET_API_KEY" --source https://api.nuget.org/v3/index.json --skip-duplicate
           done
 
       - name: Create GitHub Release
