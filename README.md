@@ -6,6 +6,10 @@ Foundation package for [MCP (Model Context Protocol)](https://modelcontextprotoc
 
 **Docs:** [mcp.tharga.net](https://mcp.tharga.net) — guides, API reference, and the provider/scope/auth walkthroughs.
 
+## Supported frameworks
+
+Targets `net10.0` and `net11.0`. Projects on .NET 10 are unaffected; the package brings no .NET 11 dependencies to them.
+
 ## Install
 
 ```bash
